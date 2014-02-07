@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+{% parent %}
+
+{% endblock %}
+{% block content %}
+<div class="sixteen wide column">
+  <div class="ui breadcrumb">
+    <a class="section" href="/">Home</a>
+    <div class="divider"> / </div>
+    <div class="active section">Experiments</div>
+  </div>
+</div>  
+<h2 class="ui header">Experiments</h2>
+<div class="ui divider"></div>
+<div class="sixteen wide column">
+  <div class="ui items">
+{% for experiment in db_experiments %}
+
+    <a class="experiment preview item" href="/experiments/{{ experiment._id.toString() }}">
+      <div class="image">
+      <div  class="ui rounded medium image">
+        <img src="{{ experiment.image }}">
+      </div>
+      </div>
+      <div class="content">
+        <div class="ui large red ribbon label">{{ experiment.name }}</div>
+        <p class="description">{{ experiment.description.substring(0, 100) }}</p>
+      </div>
+    </a>
+  
+  {% endfor %}
+   </div>
+  </div>
+  {% endblock %}

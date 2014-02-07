@@ -1,0 +1,15 @@
+{
+  "name": "Celltrack",
+  "description": "Cell tracking application",
+  "version": "0.5.1",
+  "private": true,
+  "dependencies": {
+    "express": "3.x",
+    "swig": "1.x",
+    "mongoose": "3.x",
+    "fs.extra": "1.2.x",
+    "fstream": "0.1.x",
+    "temp": "0.6.x",
+    "unzip": "0.1.x"
+  }
+}

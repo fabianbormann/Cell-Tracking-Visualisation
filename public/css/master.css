@@ -1,0 +1,56 @@
+html, body {margin: 0; padding: 0; font-family: 'Open Sans', sans-serif; font-size: 12px;}
+a {text-decoration: none;}
+
+.experiment.preview.item {margin: 10px 20px}
+.description {margin-top: 10px !important;}
+
+#canvasContainer {position: relative; height: 400px;}
+
+.hidden.pause.icon {display: none;}
+.hidden.play.icon {display: none;}
+
+.content {padding-top: 20px;}
+
+.celltrack_canvas {max-width: 600px;}
+
+.ui.progress {max-width: 600px; width: 56.25%;}
+
+#buttonmenu {padding: 1.5%;}
+.ui.toggle.red.active.button {background-color: #E75859 !important;}
+
+.notransition {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  -ms-transition: none !important;
+  transition: none !important;
+}
+
+path {
+	stroke: steelblue;
+	stroke-width: 1;
+	fill: none;
+}
+
+.axis {
+  shape-rendering: crispEdges;
+}
+
+.x.axis line {
+  stroke: lightgrey;
+}
+
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.y.axis line, .y.axis path {
+  fill: none;
+  stroke: #000;
+}
+
+.axis-label {color: #4d77b0;}

@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+{% parent %}
+
+{% endblock %}
+{% block content %}
+	<div class="sixteen wide column">
+		<div class="ui breadcrumb">
+		  <a class="section" href="/">Home</a>
+		  <div class="divider"> / </div>
+		  <div class="active section">About</div>
+		</div>
+	</div>	
+	<div class="sixteen wide column">
+	    <div class="ui icon header">
+		  <i class="circular question icon"></i>Celltrack
+		  <div class="sub header">Celltrack is a web application written in <a href="http://nodejs.org/">Node.js</a>.</div>
+		</div>
+
+	    <address>
+	        <a href="https://github.com/maxlorenz/Celltrack-Node">GitHub</a><br>
+	    </address>
+	 </div>
+{% endblock %}
