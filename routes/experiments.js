@@ -16,7 +16,7 @@ exports.clearDatabase = function(req, res) {
 
 exports.findAll = function(req, res) {
     Experiment.find(function(err, experiments) {
-        console.log(experiments[0]._id)
+        console.log(experiments[0]._id.toString())
         res.render('experiments', { db_experiments: experiments });
     });
 };
@@ -110,7 +110,7 @@ exports.uploadFile = function(req, res) {
                                         experiment.save();
 
                                         res.render('upload_finished', {
-                                            experimentId: experiment._id,
+                                            experimentId: experiment._id.toString(),
                                             name: req.body.experimentName,
                                             size: Math.round(req.files.image.size / 1024 || 0)
                                         });
