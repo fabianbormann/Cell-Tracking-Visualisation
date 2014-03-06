@@ -26,7 +26,7 @@ app.get('/', about.showAbout);
 
 app.get('/dropAll', experiments.clearDatabase);
 
-app.get('/experiments', experiments.findAll);
+app.get('/experiments', experiments.showAll);
 app.get('/experiments/:id', experiments.findById);
 
 app.get('/upload', upload.showForm);
