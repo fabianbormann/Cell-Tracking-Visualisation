@@ -1,0 +1,129 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+{% parent %}
+<script type="text/javascript" src="/js/d3.min.js"></script>
+<script type="text/javascript">
+
+  var settings = {
+    options : "{{ settings.options }}",
+    path : "{{ settings.path }}",
+    maximalFrames : {{ settings.maximalFrames }}
+  };
+
+  var tracking;
+
+  $( document ).ready(function() {
+
+    tracking = new Tracking( settings );
+
+    $('.ui.selection.dropdown').dropdown();
+
+    $( window ).resize(function() {
+      $("#canvasContainer").height( $("#backgroundCanvas").height() );
+    });
+
+    $(".contrast").click(function () {
+      tracking.setContrast($("#contrast").val());   
+    });
+
+    $("#playButton").click(function() {
+      if(tracking.isRunning())
+        tracking.stop();
+      else 
+        tracking.start();
+    });
+
+    $("#repeatButton").click(function() {
+      $("#repeatButton").toggleClass( "active red" );
+
+      if(tracking.inRepeatMode())
+        tracking.activateRepeat();
+      else 
+        tracking.deactivateRepeat();
+    });
+
+    $("#foregroundCanvas").click(function(event) {
+      tracking.selectCell(event);
+    });
+  });
+  </script>
+{% endblock %}
+
+{% block content %}
+<div class="sixteen wide column">
+    <div class="ui breadcrumb">
+      <a class="section" href="/">Home</a>
+      <div class="divider"> / </div>
+      <div class="active section">{{ experiment.name }}</div>
+    </div>
+</div>
+<h2 class="ui header">{{ experiment.name }}</h2>
+<div class="ui divider"></div>
+<div class="twelve wide column">
+  <p class="ui large label"> {{ experiment.authors }} </p>
+</div>
+<div class="four wide column">
+    <div class="ui selection dropdown">
+      <input type="hidden" name="contrast" id="contrast">
+      <div class="default text">Contrast variations</div>
+      <i class="dropdown icon"></i>
+      <div class="menu">
+        {% for option in options %}
+        <div class="contrast item" data-value="{{ option }}">{{ option }}</div>
+        {% endfor %}
+      </div>
+    </div>
+</div>
+<div class="twelve wide column">
+      <div id="canvasContainer">
+        <canvas id="backgroundCanvas" class="celltrack_canvas" style="position: absolute; z-index: 0">Sorry, your browser cannot display this image. Download and install the latest version of
+        your favorite browser and try it again.</canvas>
+        <canvas id="foregroundCanvas" class="celltrack_canvas" style="position: absolute; z-index: 1">Sorry, your browser cannot display this image. Download and install the latest version of
+        your favorite browser and try it again.</canvas>
+      </div>
+</div>
+<div class="four wide column">
+  <div class="ui red inverted segment">
+    <h2>Description</h2>
+    <p>{{ experiment.description }}</p>
+  </div>
+</div>
+
+<div class="sixteen wide column">
+  <div class="ui progress">
+    <div id="progress" class="notransition bar" style="width: 0%;"></div>
+  </div>
+</div>
+
+<div id="buttonmenu" class="ui icon buttons">
+  <div id="playButton" class="huge ui toggle button">
+    <i id="playIcon" class="play icon"></i>
+    <i id="pauseIcon" class="hidden pause icon"></i>
+  </div>
+  <div class="huge ui button">
+    <i class="step backward icon"></i>
+  </div>
+    <div class="huge ui button">
+    <i class="step forward icon"></i>
+  </div>
+  <div class="huge ui button">
+    <i class="stop icon"></i>
+  </div>
+  <div id="repeatButton" class="huge ui toggle button">
+    <i class="repeat icon"></i>
+  </div>
+</div>
+
+<h3 class="ui header">Statistics</h3>
+<div class="ui divider"></div>
+
+<div class="sixteen wide column">
+  <div class="ui tabular menu">
+    <a class="active item">
+      Cell size
+    </a>
+  </div>
+  <div id="graph" class="aGraph"></div>
+</div>
+{% endblock %}

@@ -30,11 +30,15 @@ exports.findById = function(req, res) {
                     throw err;
                 }
                 else {
-                    res.render('show_experiment', { 
-                        options : files,
-                        db_experiment : experiment, 
+                    settings = {
+                        options : files, 
                         path : "/data/"+experiment.name+"/",
                         maximalFrames : experiment.frames
+                    };
+
+                    res.render('experiment', { 
+                        experiment : experiment,
+                        settings : settings
                    });
                 }
             });
