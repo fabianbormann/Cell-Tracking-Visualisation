@@ -34,10 +34,25 @@
         tracking.start();
     });
 
+    $("#backwardButton").click(function() {
+      tracking.setFrameId(0);
+    });
+
+    $("#forwardButton").click(function() {
+      tracking.setFrameId(settings.maximalFrames-1);
+    });
+
+    $("#stopButton").click(function() {
+      if(tracking.isRunning()) {
+        tracking.stop();
+        tracking.setFrameId(0);
+      }
+    });
+
     $("#repeatButton").click(function() {
       $("#repeatButton").toggleClass( "active red" );
 
-      if(tracking.inRepeatMode())
+      if(!tracking.inRepeatMode())
         tracking.activateRepeat();
       else 
         tracking.deactivateRepeat();
@@ -45,6 +60,18 @@
 
     $("#foregroundCanvas").click(function(event) {
       tracking.selectCell(event);
+    });
+
+    $(".ui.progress").click(function(event) {
+      var posX = parseInt ($( this ).offset().left);
+      var mouseX = parseInt (event.pageX) - posX;
+
+      if(mouseX > $( this ).width()) {
+        mouseX = $( this ).width();
+      }
+
+      relativePosition = mouseX/$( this ).width();
+      tracking.setFrameId(Math.round((settings.maximalFrames-1)*relativePosition));
     });
   });
   </script>
@@ -69,7 +96,7 @@
       <div class="default text">Contrast variations</div>
       <i class="dropdown icon"></i>
       <div class="menu">
-        {% for option in options %}
+        {% for option in settings.options %}
         <div class="contrast item" data-value="{{ option }}">{{ option }}</div>
         {% endfor %}
       </div>
@@ -101,13 +128,13 @@
     <i id="playIcon" class="play icon"></i>
     <i id="pauseIcon" class="hidden pause icon"></i>
   </div>
-  <div class="huge ui button">
+  <div id="backwardButton" class="huge ui button">
     <i class="step backward icon"></i>
   </div>
-    <div class="huge ui button">
+    <div id="forwardButton" class="huge ui button">
     <i class="step forward icon"></i>
   </div>
-  <div class="huge ui button">
+  <div id="stopButton" class="huge ui button">
     <i class="stop icon"></i>
   </div>
   <div id="repeatButton" class="huge ui toggle button">

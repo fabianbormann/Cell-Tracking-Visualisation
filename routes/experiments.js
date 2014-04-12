@@ -16,8 +16,9 @@ exports.clearDatabase = function(req, res) {
 
 exports.showAll = function(req, res) {
     Experiment.find(function(err, experiments) {
-        console.log(experiments)
-        res.render('experiments', { experiments: experiments });
+        res.render('experiments', { 
+            experiments : experiments 
+        });
     });
 };
 

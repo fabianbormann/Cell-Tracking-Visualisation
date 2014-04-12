@@ -27,7 +27,7 @@ function Tracking (settings) {
       foregroundContext = foregroundCanvas.getContext('2d');
 
       var image = new Image();
-      image.src = path+"images/"+contrast+"/"+"frame000.png";
+      image.src = path+"images/"+self.getContrast()+"/"+"frame000.png";
       image.onload = function() {
          backgroundCanvas.width  = image.width;
          backgroundCanvas.height = image.height;
@@ -73,6 +73,11 @@ function Tracking (settings) {
 
    this.setContrast = function(backgroundContrast) {
       contrast = backgroundContrast;
+      updateBackground();
+   }
+
+   this.getContrast = function() {
+      return contrast;
    }
 
    this.setSpeed = function(animationSpeed) {
@@ -161,6 +166,7 @@ function Tracking (settings) {
       $.get(path+"frames/"+"frame"+frameId+".json", function(data) {
 
          cells = data.cells;
+         console.log(data.cells);
          refreshBoundingBoxes(cells);
          currentFrameMasks = [];
          cellsizes = [];
@@ -189,6 +195,12 @@ function Tracking (settings) {
             box.height =  nextCells[i].boundingbox.xr - nextCells[i].boundingbox.xl;
             box.width =  nextCells[i].boundingbox.yr - nextCells[i].boundingbox.yl;  
          }
+         foregroundContext.fillStyle = 'rgba(0,225,0,1)';
+
+         console.log(box.x+"  "+box.y+"  "+box.width+"  "+box.height)
+
+         backgroundContext.fillRect(box.x, box.y, box.width, box.height);
+
          boundingboxes.push(box);
       }
    }
@@ -224,7 +236,6 @@ function Tracking (settings) {
          var nextFrameSelectedCellIds = [];
          $.each(selectedCells, function(index, value) {
             var id = cells[value].path;
-            console.log(id);
             var frame = frameId;
 
             var hash = {};
@@ -343,6 +354,14 @@ function Tracking (settings) {
    function isString(o) {
       return typeof o == "string" || (typeof o == "object" && o.constructor === String);
    }
+
+   function getIndexInPath(path, cell_id) {
+      var subPath = [];
+      $.each(path, function(index, value) {
+         subPath.push = [value[0], value[1]];
+      });
+      return $.inArray(subPath, [frameId, cell_id]);
+   } 
 
    init();
 }

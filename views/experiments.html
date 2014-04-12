@@ -16,7 +16,7 @@
 <div class="ui divider"></div>
 <div class="sixteen wide column">
   <div class="ui items">
-    {% if experiments.lenght > 0 %}
+    {% if experiments.length > 0 %}
     {% for experiment in experiments %}
     <a class="experiment preview item" href="/experiments/{{ experiment._id.toString() }}">
       <div class="image">
