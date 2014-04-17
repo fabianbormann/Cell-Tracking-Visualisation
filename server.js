@@ -23,16 +23,15 @@ swig.setDefaults({ cache: false });
 // Don't leave both of these to `false` in production!
 
 app.get('/', about.showAbout);
-
 app.get('/dropAll', experiments.clearDatabase);
-
 app.get('/experiments', experiments.showAll);
 app.get('/experiments/:id', experiments.findById);
-
 app.get('/upload', upload.showForm);
-app.post('/upload', experiments.uploadFile);
-
 app.get('/about', about.showAbout);
+
+app.get('/path/:experiment', experiments.getPath);
+
+app.post('/upload', experiments.uploadFile);
 
 app.listen(3000);
 console.log('Listening on port 3000...');

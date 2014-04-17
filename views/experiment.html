@@ -8,7 +8,8 @@
   var settings = {
     options : "{{ settings.options }}",
     path : "{{ settings.path }}",
-    maximalFrames : {{ settings.maximalFrames }}
+    maximalFrames : {{ settings.maximalFrames }},
+    experimentId : "{{ experiment._id.toString() }}"
   };
 
   var tracking;

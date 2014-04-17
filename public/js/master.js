@@ -164,77 +164,35 @@ function Tracking (settings) {
 
    function usingCurrentFrameData() {
       $.get(path+"frames/"+"frame"+frameId+".json", function(data) {
-
          cells = data.cells;
-         console.log(data.cells);
          refreshBoundingBoxes(cells);
-         currentFrameMasks = [];
-         cellsizes = [];
-
-         for(var i=0; i <= cells.length-1; i++){
-            refreshMask(cells[i]);
-            getCellSize(cells[i]);
-         }
-
          updateCellmasks();
       });
    } 
 
    function refreshBoundingBoxes(nextCells) {
       boundingboxes = [];
-      for (var i = 0; i <= nextCells.length-1; i++) {
+      for (var i = 0; i < nextCells.length; i++) {
          var box;
-         if(nextCells[i].id == null) {
+         if(nextCells[i][0] == null) {
             box = {}
          }
-         else {
+         else {    
             box = {};
-            box.id = nextCells[i].id;
-            box.x = nextCells[i].centroid.y;
-            box.y = nextCells[i].centroid.x;
-            box.height =  nextCells[i].boundingbox.xr - nextCells[i].boundingbox.xl;
-            box.width =  nextCells[i].boundingbox.yr - nextCells[i].boundingbox.yl;  
+            box.id = nextCells[i][0].id;
+            box.x = nextCells[i][0].centroid.y;
+            box.y = nextCells[i][0].centroid.x;
+            box.height =  nextCells[i][0].boundingbox.xr - nextCells[i][0].boundingbox.xl;
+            box.width =  nextCells[i][0].boundingbox.yr - nextCells[i][0].boundingbox.yl;
          }
-         foregroundContext.fillStyle = 'rgba(0,225,0,1)';
-
-         console.log(box.x+"  "+box.y+"  "+box.width+"  "+box.height)
-
-         backgroundContext.fillRect(box.x, box.y, box.width, box.height);
-
          boundingboxes.push(box);
       }
    }
 
-   function getCellSize(cell) {
-      if(cell.id != null) {
-         var cellmask = currentFrameMasks[cell.id];
-         var cellsizeInPixel = 0;
-
-         for (var i = 0; i <= cellmask.length-1; i++) {
-           if(cellmask[i] === "1"){
-               cellsizeInPixel++
-            } 
-         }
-
-         if(cellsizeInPixel != 0) {
-            cellsizes.push(cellsizeInPixel);
-         }
-      }
-   }
-
-   function refreshMask(cell) {
-      if(cell.mask != null) {
-         currentFrameMasks.push(base64toBinary(cell.mask, 'binary'));
-      }
-      else {
-         currentFrameMasks.push("empty");
-      }
-   }
-
    function updateForeground() {
-      $.get(path+"paths.json", function(path) {
+      //$.get(path+"paths.json", function(path) {
          var nextFrameSelectedCellIds = [];
-         $.each(selectedCells, function(index, value) {
+         /*$.each(selectedCells, function(index, value) {
             var id = cells[value].path;
             var frame = frameId;
 
@@ -262,11 +220,15 @@ function Tracking (settings) {
                   nextFrameSelectedCellIds.push(path.paths[successor].cells[0][0].toString());
                }
             }
+         });*/
+         
+         $.get("/path/"+settings.experimentId, function(path) {
+            console.log(path);
          });
 
-         selectedCells = nextFrameSelectedCellIds;
+         //selectedCells = nextFrameSelectedCellIds;
          usingCurrentFrameData();   
-      });
+      //});
    }
 
    function updateCellmasks() {
@@ -303,7 +265,7 @@ function Tracking (settings) {
    }
 
    function drawMask(cell_id) {
-      var cellmask = currentFrameMasks[cell_id];
+      var cellmask = base64toBinary(cells[cell_id][0].mask, 'binary');
       var boxPosX = boundingboxes[cell_id].x-(boundingboxes[cell_id].width/2);
       var boxPosY = boundingboxes[cell_id].y-(boundingboxes[cell_id].height/2);
     

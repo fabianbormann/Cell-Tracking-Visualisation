@@ -6,6 +6,8 @@ var fs = require('fs.extra'),
 mongoose.connect('mongodb://localhost/test');
 var db = mongoose.connection;
 var Experiment = require('../models/Experiment');
+var Path = require('../models/Path');
+var Cell = require('../models/Cell');
 
 exports.clearDatabase = function(req, res) {
     Experiment.remove({}, function(err) { 
@@ -90,10 +92,53 @@ exports.uploadFile = function(req, res) {
                                         if (err) {
                                             throw err;
                                         }});
+                                        
+                                        /*
                                         fs.copy(dirPath+'/paths.json', './public/data/'+req.body.experimentName+'/paths.json', function (err) {
                                         if (err) {
                                             throw err;
                                         }});
+                                        */
+
+                                        var pathData = fs.readFileSync(dirPath+"/paths.json");
+
+                                        pathData += " ";
+                                        pathData = pathData.replace(/\bNaN\b/g, "null");
+                                        pathData = JSON.parse(pathData);
+
+                                        for(var path_id = 0; path_id < pathData.paths.length; path_id++) {
+                                        
+                                            var path = new Path({
+                                                    id: pathData.paths[path_id].id, 
+                                                    length: pathData.paths[path_id].length, 
+                                                    edist: pathData.paths[path_id].edist, 
+                                                    adist: pathData.paths[path_id].adist, 
+                                                    msd: pathData.paths[path_id].msd,
+                                                    angle: pathData.paths[path_id].angle, 
+                                                    speed: pathData.paths[path_id].speed,
+                                                    meanspeed: pathData.paths[path_id].meanspeed, 
+                                                    directness: pathData.paths[path_id].directness, 
+                                                    fmi: pathData.paths[path_id].fmi, 
+                                                    cmd: pathData.paths[path_id].cmd, 
+                                                    flags: pathData.paths[path_id].flags, 
+                                                    predecessors: pathData.paths[path_id].predecessors, 
+                                                    successors: pathData.paths[path_id].successors, 
+                                                    coordinates: pathData.paths[path_id].coordinates,
+                                                    cells: [],
+                                            });
+
+                                            for(var cell_id = 0; cell_id < pathData.paths[path_id].cells[0].length; cell_id++) {
+                                                var cell = new Cell({
+                                                    frame: pathData.paths[path_id].cells[0][0],
+                                                    id: pathData.paths[path_id].cells[0][1],
+                                                    error: pathData.paths[path_id].cells[0][2] 
+                                                });
+                                                cell.save();
+                                                path.cells.push(cell._id);
+                                            }
+                                            path.save();
+                                        }
+
                                         fs.copy(dirPath+'/experiment.json', './public/data/'+req.body.experimentName+'/experiment.json', function (err) {
                                         if (err) {
                                             throw err;
@@ -130,3 +175,9 @@ exports.uploadFile = function(req, res) {
         };
     });
 };
+
+exports.getPath = function(req, res) {
+    Path.find({}, function(err, paths) {
+        res.send(paths[0]);
+    })
+}
