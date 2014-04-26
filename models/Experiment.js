@@ -3,7 +3,10 @@ mongoose = require('mongoose');
 var experimentSchema = mongoose.Schema({
     name: String,
     id: Number,
-    image: String,
+    image: {
+        extension : String,
+        preview : String
+    },
     authors: String,
     description: String,
     date: Date,
@@ -20,7 +23,7 @@ var experimentSchema = mongoose.Schema({
         x: Number,
         z: Number
     },
-    flagnames: Array
+    flagnames: [String]
 });
 
 module.exports = mongoose.model('Experiment', experimentSchema);

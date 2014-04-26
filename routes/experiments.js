@@ -7,12 +7,14 @@ mongoose.connect('mongodb://localhost/test');
 var db = mongoose.connection;
 var Experiment = require('../models/Experiment');
 var Path = require('../models/Path');
-var Cell = require('../models/Cell');
 
 exports.clearDatabase = function(req, res) {
     Experiment.remove({}, function(err) { 
-        console.log('collection removed');
-        res.redirect('/');
+        console.log('Experiments removed');
+        Path.remove({}, function(err) { 
+            console.log('Paths removed');
+            res.redirect('/');
+        });
     });
 }
 
@@ -93,21 +95,14 @@ exports.uploadFile = function(req, res) {
                                             throw err;
                                         }});
                                         
-                                        /*
-                                        fs.copy(dirPath+'/paths.json', './public/data/'+req.body.experimentName+'/paths.json', function (err) {
-                                        if (err) {
-                                            throw err;
-                                        }});
-                                        */
-
                                         var pathData = fs.readFileSync(dirPath+"/paths.json");
-
+                                        var correctSaved = 0;
                                         pathData += " ";
                                         pathData = pathData.replace(/\bNaN\b/g, "null");
                                         pathData = JSON.parse(pathData);
 
                                         for(var path_id = 0; path_id < pathData.paths.length; path_id++) {
-                                        
+                                            console.log("load path "+path_id);
                                             var path = new Path({
                                                     id: pathData.paths[path_id].id, 
                                                     length: pathData.paths[path_id].length, 
@@ -119,24 +114,22 @@ exports.uploadFile = function(req, res) {
                                                     meanspeed: pathData.paths[path_id].meanspeed, 
                                                     directness: pathData.paths[path_id].directness, 
                                                     fmi: pathData.paths[path_id].fmi, 
-                                                    cmd: pathData.paths[path_id].cmd, 
+                                                    displacement: pathData.paths[path_id].displacement, 
                                                     flags: pathData.paths[path_id].flags, 
                                                     predecessors: pathData.paths[path_id].predecessors, 
                                                     successors: pathData.paths[path_id].successors, 
                                                     coordinates: pathData.paths[path_id].coordinates,
-                                                    cells: [],
+                                                    cells: JSON.stringify(pathData.paths[path_id].cells)
                                             });
-
-                                            for(var cell_id = 0; cell_id < pathData.paths[path_id].cells[0].length; cell_id++) {
-                                                var cell = new Cell({
-                                                    frame: pathData.paths[path_id].cells[0][0],
-                                                    id: pathData.paths[path_id].cells[0][1],
-                                                    error: pathData.paths[path_id].cells[0][2] 
-                                                });
-                                                cell.save();
-                                                path.cells.push(cell._id);
-                                            }
-                                            path.save();
+                                            path.save(function(err) {
+                                                if (err) { 
+                                                    throw err
+                                                }
+                                                else {
+                                                    correctSaved++
+                                                    console.log(correctSaved+" are correct saved from "+pathData.paths.length);
+                                                }
+                                            });
                                         }
 
                                         fs.copy(dirPath+'/experiment.json', './public/data/'+req.body.experimentName+'/experiment.json', function (err) {
@@ -144,8 +137,12 @@ exports.uploadFile = function(req, res) {
                                             throw err;
                                         }});
 
+                                        var imageNames = fs.readdirSync('./public/data/'+req.body.experimentName+'/images/contrast1/');
                                         var experiment = new Experiment({ name: req.body.experimentName,
-                                            image: '/data/'+req.body.experimentName+'/images/contrast1/' + 'frame000.png',
+                                            image: {
+                                                extension : imageNames[0].split(".")[1],
+                                                preview : '/data/'+req.body.experimentName+'/images/contrast1/' + 'frame000.'+imageNames[0].split(".")[1]
+                                            },
                                             description: req.body.description,
                                             authors: req.body.authors,
                                             date: new Date(Experimentdata.experiment.date),
@@ -177,7 +174,7 @@ exports.uploadFile = function(req, res) {
 };
 
 exports.getPath = function(req, res) {
-    Path.find({}, function(err, paths) {
+    Path.find( { id : req.params.path }, function(err, paths) {
         res.send(paths[0]);
     })
 }

@@ -8,6 +8,7 @@
   var settings = {
     options : "{{ settings.options }}",
     path : "{{ settings.path }}",
+    imageSuffix : "{{ experiment.image.extension }}",
     maximalFrames : {{ settings.maximalFrames }},
     experimentId : "{{ experiment._id.toString() }}"
   };

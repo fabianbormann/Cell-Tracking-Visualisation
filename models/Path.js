@@ -5,18 +5,18 @@ var pathSchema = mongoose.Schema({
     length: Number, 
     edist: Number, 
     adist: Number, 
-    msd: Array,
+    msd: [Number],
     angle: Number, 
-    speed: Array,
+    speed: [Number],
     meanspeed: Number, 
     directness: Number, 
-    fmi: Array, 
-    cmd: Number, 
-    flags: Array, 
-    predecessors: Array, 
-    successors: Array, 
+    fmi: [Number], 
+    displacement: [Number], 
+    flags: [Number], 
+    predecessors: [Number], 
+    successors: [Number], 
     coordinates: Array,
-    cells: Array,
+    cells: String
 });
 
 module.exports = mongoose.model('Path', pathSchema);

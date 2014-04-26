@@ -29,7 +29,7 @@ app.get('/experiments/:id', experiments.findById);
 app.get('/upload', upload.showForm);
 app.get('/about', about.showAbout);
 
-app.get('/path/:experiment', experiments.getPath);
+app.get('/path/:path', experiments.getPath);
 
 app.post('/upload', experiments.uploadFile);
 

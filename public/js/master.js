@@ -1,19 +1,46 @@
 function Tracking (settings) {
 
+   Array.prototype.containsArray = function(input) {
+      var result = -1;
+      for(var index = 0; index < this.length; index++) {
+         if(this[index][0] == input[0] && this[index][1] == input[1]) {
+            result = index;
+            break;
+         }
+      }
+      return result;
+   }
+
+   Array.prototype.containsKey = function(key) {
+      var result = -1;
+      for(var index = 0; index < this.length; index++) {
+         if(this[index][0] == key) {
+            result = index;
+            break;
+         }
+      }
+      return result;
+   }
+
    var self = this;
 
    var path = settings.path;
    var maximalFrames = settings.maximalFrames;
+   var imageExtension = "."+settings.imageSuffix;
 
    var run = false;
    var repeat = false;
    var frameId = "000";
-   var speed = 5;
+   var speed = 10;
+
+   var cache = [];
 
    var contrast = (settings.options.split(","))[0];
 
    var backgroundCanvas, foregroundCanvas;
    var backgroundContext, foregroundContext;   
+
+   var images = [];
 
    var cells;
    var selectedCells = [];
@@ -27,7 +54,7 @@ function Tracking (settings) {
       foregroundContext = foregroundCanvas.getContext('2d');
 
       var image = new Image();
-      image.src = path+"images/"+self.getContrast()+"/"+"frame000.png";
+      image.src = path+"images/"+self.getContrast()+"/"+"frame000"+imageExtension;
       image.onload = function() {
          backgroundCanvas.width  = image.width;
          backgroundCanvas.height = image.height;
@@ -40,7 +67,8 @@ function Tracking (settings) {
 
          $("#canvasContainer").height( $("#backgroundCanvas").height() );
       }
-      
+
+      preload();
       usingCurrentFrameData();
       play();
    }
@@ -133,12 +161,16 @@ function Tracking (settings) {
       window.setTimeout(play, (1/speed)*1000); 
    }
 
-   function updateBackground() {
-      var image = new Image();
-      image.src = path+"images/"+contrast+"/"+"frame"+frameId+".png";
-      image.onload = function() {
-         backgroundContext.drawImage(image, 0, 0);
+   function preload() {
+      for(var i = 0; i < maximalFrames; i++) {
+         var image = new Image();
+         images.push(image);
+         images[i].src = path+"images/"+self.getContrast()+"/"+"frame"+fillString(i.toString(),3)+imageExtension;
       }
+   }
+
+   function updateBackground() {
+      backgroundContext.drawImage(images[parseInt(frameId)], 0, 0);
    }
 
    function increaseFrameId() {
@@ -190,45 +222,45 @@ function Tracking (settings) {
    }
 
    function updateForeground() {
-      //$.get(path+"paths.json", function(path) {
-         var nextFrameSelectedCellIds = [];
-         /*$.each(selectedCells, function(index, value) {
-            var id = cells[value].path;
-            var frame = frameId;
-
-            var hash = {};
-            var pathIndex;
-            for(var i = 0 ; i < path.paths[id].cells.length; i += 1) {
-               hash[path.paths[id].cells[i]] = i;
-            }
-
-            var val = [parseInt(cells[value].id), frame-1];
-
-            if(hash.hasOwnProperty(val)) {
-               pathIndex = hash[val]+1
-            }
-            else {
-               pathIndex = -1;
-            }
-
-            if(path.paths[id].cells[pathIndex]) {
-               nextFrameSelectedCellIds.push(path.paths[id].cells[pathIndex][0]);
-            }
-            else if(path.paths[id].successors.length > 0){
-               for(var i = 0; i <= path.paths[id].successors.length-1; i++) {
-                  var successor = path.paths[id].successors[i];
-                  nextFrameSelectedCellIds.push(path.paths[successor].cells[0][0].toString());
-               }
-            }
-         });*/
+      var nextFrameSelectedCellIds = [];
+      $.each(selectedCells, function(index, value) {
+         var cellPath = getCachedPath(cells[value][0].path[0]);
+         cellPath.cells = JSON.parse(cellPath.cells);
+         cellIndex = cellPath.cells.containsArray([self.getFrameId()-1,value]);
          
-         $.get("/path/"+settings.experimentId, function(path) {
-            console.log(path);
-         });
+         if(cellIndex > -1 && cellPath.cells[cellIndex+1]) {
+            nextFrameSelectedCellIds.push(cellPath.cells[cellIndex+1][1]);
+         }
+         else {
+            $.each(cellPath.successors, function(index, successor) {
+               successorPath = getCachedPath(successor);
+               nextFrameSelectedCellIds.push(JSON.parse(successorPath.cells)[0][1]);
+            });
+         }
 
-         //selectedCells = nextFrameSelectedCellIds;
-         usingCurrentFrameData();   
-      //});
+         selectedCells = nextFrameSelectedCellIds;
+         usingCurrentFrameData(); 
+      });
+   }
+
+   function getCachedPath(id) {
+      var index = cache.containsKey(id);
+      if(index > -1) {
+         return JSON.parse(cache[index][1]);
+      }
+      else {
+         var missedPath;
+         $.ajax({
+            type: "GET",
+            url: "/path/"+id,
+            success: function(cellPath) {
+               missedPath = cellPath;
+            },
+            async:false
+         });
+         cache.push([id, JSON.stringify(missedPath)]);
+         return missedPath;
+      }
    }
 
    function updateCellmasks() {
