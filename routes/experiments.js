@@ -167,8 +167,28 @@ exports.uploadFile = function(req, res) {
 };
 
 exports.getPath = function(req, res) {
-    Path.find( { id : req.params.path, experiment_id : req.params.experiment }, function(err, paths) {
-        console.log(paths.length);
-        res.send(paths[0]);
+    Path.findOne( { id : req.params.path, experiment_id : req.params.experiment }, function(err, path) {
+        res.send(path);
     })
+}
+
+exports.getMatchedPaths = function(req, res) {
+    var query = {};
+    if(req.params.inculde == "true")
+        query[req.params.option] = { $gt : req.params.from, $lt : req.params.to };  
+    else 
+        query[req.params.option] = { $not : {$gt : req.params.from, $lt : req.params.to} };
+    
+    Path.find({ $and : [query, { experiment_id : req.params.experiment }] }, function(err, paths) {
+        if(err) {
+            throw err;
+        }
+        else {
+            var filterdCells = [];
+            for(var i = 0; i < paths.length; i++) {
+                filterdCells.push(JSON.parse(paths[i].cells));
+            }
+            res.send(filterdCells);
+        }
+    });
 }

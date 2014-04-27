@@ -19,7 +19,7 @@
 
     tracking = new Tracking( settings );
 
-    $('.ui.selection.dropdown').dropdown();
+    $('.ui.dropdown').dropdown();
 
     $( window ).resize(function() {
       $("#canvasContainer").height( $("#backgroundCanvas").height() );
@@ -27,6 +27,15 @@
 
     $(".contrast").click(function () {
       tracking.setContrast($("#contrast").val());   
+    });
+
+    $("#addFilter").click(function () {
+      tracking.addFilter({
+        option : $("#filtertype").val(),
+        from : $("#from").val(),
+        to : $("#to").val(),
+        include : ($("#included").val() == "included") ? true : false
+      });
     });
 
     $("#playButton").click(function() {
@@ -113,10 +122,53 @@
       </div>
 </div>
 <div class="four wide column">
-  <div class="ui red inverted segment">
-    <h2>Description</h2>
+  <div class="ui secondary segment">
+    <h2 class="ui header">
+      <i class="comment outline icon"></i>
+      Description
+    </h2>
     <p>{{ experiment.description }}</p>
   </div>
+    <div class="ui secondary segment">
+      <h2 class="ui header">
+        <i class="wrench icon"></i>
+        Filter Settings
+      </h2>
+      <div class="ui selection dropdown">
+        <input type="hidden" id="filtertype" name="filtertype">
+        <div class="default text">Type</div>
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <div class="item active" data-text="meanspeed">Meanspeed</div>
+          <div class="item" data-text="directness">Directness</div>
+        </div>
+      </div>
+      <div class="ui divider"></div>
+      <div>Preseclect all paths  
+        <div class="ui inline dropdown">
+          <input type="hidden" id="included" value="included" name="included">
+          <div class="text">included</div>
+          <i class="dropdown icon"></i>
+          <div class="menu">
+            <div class="item active" data-text="included">included</div>
+            <div class="item" data-text="not included">not included</div>
+          </div>
+        </div>
+        in the values between:
+      </div>
+      <div class="ui input">
+        <input type="text" id="from" value="1">
+      </div>
+      <div class="ui input">
+        <label for="to">and</label>
+        <input id="to" type="text" value="1.2">
+      </div>
+      <div class="ui divider"></div>
+      <div id="addFilter" class="ui green down large button">
+        <i class="add sign icon"></i>
+        Apply Filter
+      </div>
+    </div>
 </div>
 
 <div class="sixteen wide column">
@@ -144,7 +196,7 @@
   </div>
 </div>
 
-<h3 class="ui header">Statistics</h3>
+<!--<h3 class="ui header">Statistics</h3>
 <div class="ui divider"></div>
 
 <div class="sixteen wide column">
@@ -154,5 +206,5 @@
     </a>
   </div>
   <div id="graph" class="aGraph"></div>
-</div>
+</div> -->
 {% endblock %}

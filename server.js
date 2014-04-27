@@ -30,6 +30,7 @@ app.get('/upload', upload.showForm);
 app.get('/about', about.showAbout);
 
 app.get('/path/:path/:experiment', experiments.getPath);
+app.get('/path/filter/:option/:from/:to/:inculde/:experiment', experiments.getMatchedPaths)
 
 app.post('/upload', experiments.uploadFile);
 
