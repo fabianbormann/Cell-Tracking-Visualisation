@@ -2,6 +2,7 @@ mongoose = require('mongoose');
 
 var pathSchema = mongoose.Schema({
     id: Number, 
+    experiment_id : String,
     length: Number, 
     edist: Number, 
     adist: Number, 

@@ -35,6 +35,7 @@ function Tracking (settings) {
 
    var cache = [];
 
+   var experiment = settings.experimentId;
    var contrast = (settings.options.split(","))[0];
 
    var backgroundCanvas, foregroundCanvas;
@@ -101,7 +102,7 @@ function Tracking (settings) {
 
    this.setContrast = function(backgroundContrast) {
       contrast = backgroundContrast;
-      updateBackground();
+      preload();
    }
 
    this.getContrast = function() {
@@ -162,7 +163,18 @@ function Tracking (settings) {
    }
 
    function preload() {
-      for(var i = 0; i < maximalFrames; i++) {
+      for(var i = self.getFrameId(); i < maximalFrames; i++) {
+         var image = new Image();
+         images.push(image);
+         images[i].src = path+"images/"+self.getContrast()+"/"+"frame"+fillString(i.toString(),3)+imageExtension;
+
+         if(i == self.getFrameId()) {
+            images[i].onload = function() {
+               updateBackground();
+            }
+         }
+      }
+      for(var i = 0; i < self.getFrameId(); i++) {
          var image = new Image();
          images.push(image);
          images[i].src = path+"images/"+self.getContrast()+"/"+"frame"+fillString(i.toString(),3)+imageExtension;
@@ -237,10 +249,9 @@ function Tracking (settings) {
                nextFrameSelectedCellIds.push(JSON.parse(successorPath.cells)[0][1]);
             });
          }
-
-         selectedCells = nextFrameSelectedCellIds;
-         usingCurrentFrameData(); 
       });
+      selectedCells = nextFrameSelectedCellIds;
+      usingCurrentFrameData(); 
    }
 
    function getCachedPath(id) {
@@ -252,7 +263,7 @@ function Tracking (settings) {
          var missedPath;
          $.ajax({
             type: "GET",
-            url: "/path/"+id,
+            url: "/path/"+id+"/"+experiment,
             success: function(cellPath) {
                missedPath = cellPath;
             },
@@ -348,14 +359,6 @@ function Tracking (settings) {
    function isString(o) {
       return typeof o == "string" || (typeof o == "object" && o.constructor === String);
    }
-
-   function getIndexInPath(path, cell_id) {
-      var subPath = [];
-      $.each(path, function(index, value) {
-         subPath.push = [value[0], value[1]];
-      });
-      return $.inArray(subPath, [frameId, cell_id]);
-   } 
 
    init();
 }

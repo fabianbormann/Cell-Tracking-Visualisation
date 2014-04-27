@@ -13,6 +13,7 @@ lib-cov
 
 node_modules/*
 public/data/*
+refdata/*
 
 pids
 logs

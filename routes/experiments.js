@@ -95,43 +95,6 @@ exports.uploadFile = function(req, res) {
                                             throw err;
                                         }});
                                         
-                                        var pathData = fs.readFileSync(dirPath+"/paths.json");
-                                        var correctSaved = 0;
-                                        pathData += " ";
-                                        pathData = pathData.replace(/\bNaN\b/g, "null");
-                                        pathData = JSON.parse(pathData);
-
-                                        for(var path_id = 0; path_id < pathData.paths.length; path_id++) {
-                                            console.log("load path "+path_id);
-                                            var path = new Path({
-                                                    id: pathData.paths[path_id].id, 
-                                                    length: pathData.paths[path_id].length, 
-                                                    edist: pathData.paths[path_id].edist, 
-                                                    adist: pathData.paths[path_id].adist, 
-                                                    msd: pathData.paths[path_id].msd,
-                                                    angle: pathData.paths[path_id].angle, 
-                                                    speed: pathData.paths[path_id].speed,
-                                                    meanspeed: pathData.paths[path_id].meanspeed, 
-                                                    directness: pathData.paths[path_id].directness, 
-                                                    fmi: pathData.paths[path_id].fmi, 
-                                                    displacement: pathData.paths[path_id].displacement, 
-                                                    flags: pathData.paths[path_id].flags, 
-                                                    predecessors: pathData.paths[path_id].predecessors, 
-                                                    successors: pathData.paths[path_id].successors, 
-                                                    coordinates: pathData.paths[path_id].coordinates,
-                                                    cells: JSON.stringify(pathData.paths[path_id].cells)
-                                            });
-                                            path.save(function(err) {
-                                                if (err) { 
-                                                    throw err
-                                                }
-                                                else {
-                                                    correctSaved++
-                                                    console.log(correctSaved+" are correct saved from "+pathData.paths.length);
-                                                }
-                                            });
-                                        }
-
                                         fs.copy(dirPath+'/experiment.json', './public/data/'+req.body.experimentName+'/experiment.json', function (err) {
                                         if (err) {
                                             throw err;
@@ -156,6 +119,36 @@ exports.uploadFile = function(req, res) {
 
                                         experiment.save();
 
+
+                                        var pathData = fs.readFileSync(dirPath+"/paths.json");
+                                        var correctSaved = 0;
+                                        pathData += " ";
+                                        pathData = pathData.replace(/\bNaN\b/g, "null");
+                                        pathData = JSON.parse(pathData);
+
+                                        for(var path_id = 0; path_id < pathData.paths.length; path_id++) {
+                                            var path = new Path({
+                                                    id: pathData.paths[path_id].id, 
+                                                    experiment_id: experiment._id,
+                                                    length: pathData.paths[path_id].length, 
+                                                    edist: pathData.paths[path_id].edist, 
+                                                    adist: pathData.paths[path_id].adist, 
+                                                    msd: pathData.paths[path_id].msd,
+                                                    angle: pathData.paths[path_id].angle, 
+                                                    speed: pathData.paths[path_id].speed,
+                                                    meanspeed: pathData.paths[path_id].meanspeed, 
+                                                    directness: pathData.paths[path_id].directness, 
+                                                    fmi: pathData.paths[path_id].fmi, 
+                                                    displacement: pathData.paths[path_id].displacement, 
+                                                    flags: pathData.paths[path_id].flags, 
+                                                    predecessors: pathData.paths[path_id].predecessors, 
+                                                    successors: pathData.paths[path_id].successors, 
+                                                    coordinates: pathData.paths[path_id].coordinates,
+                                                    cells: JSON.stringify(pathData.paths[path_id].cells)
+                                            });
+                                            path.save();
+                                        }
+
                                         res.render('upload_finished', {
                                             experimentId: experiment._id,
                                             name: req.body.experimentName,
@@ -174,7 +167,8 @@ exports.uploadFile = function(req, res) {
 };
 
 exports.getPath = function(req, res) {
-    Path.find( { id : req.params.path }, function(err, paths) {
+    Path.find( { id : req.params.path, experiment_id : req.params.experiment }, function(err, paths) {
+        console.log(paths.length);
         res.send(paths[0]);
     })
 }
