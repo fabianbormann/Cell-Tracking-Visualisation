@@ -12,7 +12,10 @@ app.configure(function () {
 	app.set('view engine', 'html');
 	app.set('views', __dirname + '/views');
 
-	app.use(express.bodyParser());
+	app.use(express.json());
+	app.use(express.urlencoded());
+	app.use(express.multipart());
+	
 	app.use(express.logger('dev'));
 	app.use(express.static(__dirname + '/public/'));
 });
