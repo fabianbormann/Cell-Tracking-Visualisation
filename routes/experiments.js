@@ -174,12 +174,19 @@ exports.getPath = function(req, res) {
 
 exports.getMatchedPaths = function(req, res) {
     var query = {};
-    if(req.params.inculde == "true")
-        query[req.params.option] = { $gt : req.params.from, $lt : req.params.to };  
-    else 
-        query[req.params.option] = { $not : {$gt : req.params.from, $lt : req.params.to} };
-    
-    Path.find({ $and : [query, { experiment_id : req.params.experiment }] }, function(err, paths) {
+    var filters = req.body.filters;
+    var completeQuery = "";
+
+    for (var i = 0; i < filters.length; i++) {
+        if(filters[i].inculde == "true")
+            query[filters[i].option] = { $gt : filters[i].from, $lt : filters[i].to };  
+        else 
+            query[filters[i].option] = { $not : {$gt : filters[i].from, $lt : filters[i].to} };
+    };
+
+    console.log(query);
+
+    Path.find({ $and : [query, { experiment_id : req.body.experiment }] }, function(err, paths) {
         if(err) {
             throw err;
         }

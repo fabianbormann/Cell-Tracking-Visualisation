@@ -34,7 +34,7 @@ function Tracking (settings) {
    var speed = 10;
 
    var cache = [];
-   var filter = [];
+   var filters = [];
 
    var experiment = settings.experimentId;
    var contrast = (settings.options.split(","))[0];
@@ -157,25 +157,38 @@ function Tracking (settings) {
    }
 
    this.addFilter = function(filterSettings) {
-      $.get("/path/filter/"+filterSettings.option+"/"+filterSettings.from+"/"+filterSettings.to+"/"+filterSettings.include+"/"+experiment, function(filteredCells) {
-         filter.push(filteredCells);
-         checkFilter();
+      filters.push({
+         option : filterSettings.option,
+         from : filterSettings.from,
+         to : filterSettings.to,
+         inculde : filterSettings.include
+      });
+      getCellsfromFilters();
+      updateFilterArea();
+   }
+
+   function updateFilterArea() {
+      $('#filterArea')
+   }
+
+   function getCellsfromFilters() {
+      $.post("/path/filter/", {filters : filters, experiment : experiment}, function(filteredCells) {
+         console.log(filteredCells)
+         checkFilter(filteredCells);
       });
    }
 
-   function checkFilter() {
-      $.each(filter, function(filterKey, activefilter) {
-         $.each(activefilter, function(cellKey, filteredCells) {
-            if(filteredCells[0][0] <= self.getFrameId()) {
-               for(var i = 0; i < filteredCells.length; i++) {
-                  if(filteredCells[i][0] == self.getFrameId()) {
-                     console.log(filteredCells[i][1])
-                     selectedCells.push(filteredCells[i][1]);
-                     break;
-                  }
+   function checkFilter(filteredCells) {
+      $.each(filteredCells, function( key, cells) {
+         if(cells[0][0] <= self.getFrameId()) {
+            for(var i = 0; i < cells.length; i++) {
+               if(cells[i][0] == self.getFrameId()) {
+                  console.log(cells[i][1])
+                  selectedCells.push(cells[i][1]);
+                  break;
                }
             }
-         });
+         }
       });
       updateCellmasks();
    }

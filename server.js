@@ -2,7 +2,8 @@ var express = require('express'),
 	swig = require('swig'),
 	experiments = require('./routes/experiments'),
     upload = require('./routes/upload'),
-    about = require('./routes/about');
+    about = require('./routes/about'),
+    utils = require('./routes/utils');
 
 var app = express();
 app.use(express.limit('500mb'));
@@ -31,11 +32,11 @@ app.get('/experiments', experiments.showAll);
 app.get('/experiments/:id', experiments.findById);
 app.get('/upload', upload.showForm);
 app.get('/about', about.showAbout);
-
 app.get('/path/:path/:experiment', experiments.getPath);
-app.get('/path/filter/:option/:from/:to/:inculde/:experiment', experiments.getMatchedPaths)
 
+app.post('/path/filter', experiments.getMatchedPaths)
 app.post('/upload', experiments.uploadFile);
+app.post('/render/code', utils.render)
 
 app.listen(3000);
 console.log('Listening on port 3000...');

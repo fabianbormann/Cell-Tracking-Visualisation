@@ -39,11 +39,16 @@
 
   var tracking;
 
-  $( document ).ready(function() {
-    var delay;
+  function renderCode() {
+    $.post('/render/code', {code : $('#editor').text()}, function(res) {
+      console.log("get response: "+res)
+    });
+  }
 
-    $("#output").show();
-    $("#editor").hide();
+  $( document ).ready(function() {
+
+    $("#output").hide();
+    $("#editor").show();
 
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
       lineNumbers: true,
@@ -54,21 +59,6 @@
       showCursorWhenSelecting: true,
       theme: "monokai"
     });
-
-    editor.on("change", function() {
-      clearTimeout(delay);
-      delay = setTimeout(updatePreview, 300);
-    });
-
-    function updatePreview() {
-      var previewFrame = document.getElementById("preview");
-      var preview = previewFrame.contentDocument || previewFrame.contentWindow.document;
-      preview.open();
-      preview.write(editor.getValue());
-      preview.close();
-    }
-
-    setTimeout(updatePreview, 300);
 
     tracking = new Tracking( settings );
 
@@ -141,7 +131,10 @@
           $("#editor").hide();
         }
       }
+      renderCode();
     });
+
+    renderCode();
 
     $(".ui.progress").click(function(event) {
       var posX = parseInt ($( this ).offset().left);
@@ -211,6 +204,10 @@
         <div class="menu">
           <div class="item active" data-text="meanspeed">Meanspeed</div>
           <div class="item" data-text="directness">Directness</div>
+          <div class="item" data-text="length">Length</div>
+          <div class="item" data-text="angle">Angle</div>
+          <div class="item" data-text="displacement">Displacement</div>
+          <div class="item" data-text="speed">Speed</div>
         </div>
       </div>
       <div class="ui divider"></div>
@@ -236,10 +233,16 @@
       <div class="ui divider"></div>
       <div id="addFilter" class="ui green down large button">
         <i class="add sign icon"></i>
-        Apply Filter
+        Add Filter
       </div>
     </div>
-</div>
+    <div style="display:none" id="filterArea" class="ui secondary segment">
+      <h2 class="ui header">
+        Active Filter
+      </h2>
+      <div id="filter"></div>
+    </div>
+  </div>
 
 <div class="sixteen wide column">
   <div class="ui progress">
@@ -271,16 +274,16 @@
 
 <div class="sixteen wide column">
   <div class="ui top attached tabular menu">
-    <a class="active item showOutput">
-      Output
-    </a>
-    <a class="item showEditor">
+    <a class="active item showEditor">
       Editor
+    </a>
+    <a class="item showOutput">
+      Output
     </a>
   </div>
   <div class="ui bottom attached segment">
     <div id="output">
-        <iframe id="preview"></iframe>
+        <div id="preview"></div>
     </div>
     <div id="editor">
         <textarea id="code" name="code">
