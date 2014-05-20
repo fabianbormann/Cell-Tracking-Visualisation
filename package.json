@@ -7,7 +7,7 @@
     "express": "3.x",
     "swig": "1.x",
     "mongoose": "3.x",
-    "fs.extra": "1.2.x",
+    "fs-extra": "0.8.1",
     "fstream": "0.1.x",
     "temp": "0.6.x",
     "unzip": "0.1.x"

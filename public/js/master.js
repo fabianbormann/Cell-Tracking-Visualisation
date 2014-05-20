@@ -1,14 +1,14 @@
 function Tracking (settings) {
 
-   Array.prototype.containsArray = function(input) {
-      var result = -1;
-      for(var index = 0; index < this.length; index++) {
-         if(this[index][0] == input[0] && this[index][1] == input[1]) {
-            result = index;
-            break;
-         }
+   Array.prototype.containsObject = function(cellId, frameId) {
+      var found = -1;
+      for(var i = 0; i < this.length; i++) {
+          if (this[i].cellid == cellId && this[i].frameid == frameId) {
+              found = i;
+              break;
+          }
       }
-      return result;
+      return found
    }
 
    Array.prototype.containsKey = function(key) {
@@ -32,6 +32,8 @@ function Tracking (settings) {
    var repeat = false;
    var frameId = "000";
    var speed = 10;
+
+   var adjacencyList;
 
    var cache = [];
    var filters = [];
@@ -69,6 +71,10 @@ function Tracking (settings) {
 
          $("#canvasContainer").height( $("#backgroundCanvas").height() );
       }
+
+      $.get(path+"adjacencylist.json", function(data) {
+         adjacencylist = data;
+      });
 
       preload();
       usingCurrentFrameData();
@@ -141,7 +147,6 @@ function Tracking (settings) {
 
       mouseX = mouseX*(backgroundCanvas.width/$("#backgroundCanvas").width());
       mouseY = mouseY*(backgroundCanvas.height/$("#backgroundCanvas").height());
-      
       for (var i = 0; i <= boundingboxes.length-1; i++) {
          var boxWidth = boundingboxes[i].width;
          var boxHeight = boundingboxes[i].height;
@@ -262,10 +267,10 @@ function Tracking (settings) {
          else {    
             box = {};
             box.id = nextCells[i][0].id;
-            box.x = nextCells[i][0].centroid.y;
-            box.y = nextCells[i][0].centroid.x;
-            box.height =  nextCells[i][0].boundingbox.xr - nextCells[i][0].boundingbox.xl;
-            box.width =  nextCells[i][0].boundingbox.yr - nextCells[i][0].boundingbox.yl;
+            box.x = nextCells[i][0].centroid.x;
+            box.y = nextCells[i][0].centroid.y;
+            box.height =  nextCells[i][0].boundingbox.yr - nextCells[i][0].boundingbox.yl;
+            box.width =  nextCells[i][0].boundingbox.xr - nextCells[i][0].boundingbox.xl;
          }
          boundingboxes.push(box);
       }
@@ -275,16 +280,15 @@ function Tracking (settings) {
       var nextFrameSelectedCellIds = [];
       $.each(selectedCells, function(index, value) {
          var cellPath = getCachedPath(cells[value][0].path[0]);
-         cellPath.cells = JSON.parse(cellPath.cells);
-         cellIndex = cellPath.cells.containsArray([self.getFrameId()-1,value]);
-         
+         var cellIndex = cellPath.cells.containsObject(value, self.getFrameId()-1);
          if(cellIndex > -1 && cellPath.cells[cellIndex+1]) {
-            nextFrameSelectedCellIds.push(cellPath.cells[cellIndex+1][1]);
+            nextFrameSelectedCellIds.push(cellPath.cells[cellIndex+1].cellid);
          }
          else {
-            $.each(cellPath.successors, function(index, successor) {
+            $.each(adjacencylist[cellPath.id], function(index, successor) {
                successorPath = getCachedPath(successor);
-               nextFrameSelectedCellIds.push(JSON.parse(successorPath.cells)[0][1]);
+               console.log(successorPath)
+               nextFrameSelectedCellIds.push(successorPath.cells[0].cellid);
             });
          }
       });
@@ -350,15 +354,15 @@ function Tracking (settings) {
       var boxPosX = boundingboxes[cell_id].x-(boundingboxes[cell_id].width/2);
       var boxPosY = boundingboxes[cell_id].y-(boundingboxes[cell_id].height/2);
     
-      var pixelPosX = 0, 
-         pixelPosY = 0;
-      for (var i = 0; i <= cellmask.length-1; i++) {
-         if(pixelPosY >= boundingboxes[cell_id].height){
-            pixelPosY = 0;
-            pixelPosX++;
+      var pixelPosX = 0; 
+      var pixelPosY = 0;
+      for (var i = 0; i < cellmask.length; i++) {
+         if(pixelPosX >= boundingboxes[cell_id].width){
+            pixelPosX = 0;
+            pixelPosY++;
          }
          else {
-            pixelPosY++;
+            pixelPosX++;
          }
 
          if(cellmask[i] === "1"){

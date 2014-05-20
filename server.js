@@ -35,7 +35,7 @@ app.get('/about', about.showAbout);
 app.get('/path/:path/:experiment', experiments.getPath);
 
 app.post('/path/filter', experiments.getMatchedPaths)
-app.post('/upload', experiments.uploadFile);
+app.post('/upload', upload.uploadFile);
 app.post('/render/code', utils.render)
 
 app.listen(3000);
