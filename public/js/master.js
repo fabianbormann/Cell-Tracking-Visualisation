@@ -34,7 +34,6 @@ function Tracking (settings) {
    var speed = 10;
 
    var adjacencyList;
-
    var cache = [];
    var filters = [];
 
@@ -285,9 +284,8 @@ function Tracking (settings) {
             nextFrameSelectedCellIds.push(cellPath.cells[cellIndex+1].cellid);
          }
          else {
-            $.each(adjacencylist[cellPath.id], function(index, successor) {
+            $.each(adjacencylist[cellPath.id].suc, function(index, successor) {
                successorPath = getCachedPath(successor);
-               console.log(successorPath)
                nextFrameSelectedCellIds.push(successorPath.cells[0].cellid);
             });
          }

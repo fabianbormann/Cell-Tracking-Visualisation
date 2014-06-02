@@ -56,11 +56,7 @@ exports.uploadFile = function(req, res) {
                         experiment.save();
 
                         var tree = JSON.parse(fs.readFileSync(temporary+"/paths.json"));
-                        var properties = fs.readFileSync(temporary+"/pathsProperties.json");
-
-                        properties += " ";
-                        properties = properties.replace(/\bnan\b/g, "null");
-                        properties = JSON.parse(properties);
+                        var properties = JSON.parse(fs.readFileSync(temporary+"/pathsProperties.json"));
 
                         for(var id = 0; id < tree.paths.length; id++) {
                             var path = new Path({
