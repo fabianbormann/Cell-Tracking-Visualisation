@@ -35,6 +35,7 @@ function Tracking (settings) {
 
    var adjacencyList;
    var cache = [];
+   var frameCache = [];
    var filters = [];
 
    var experiment = settings.experimentId;
@@ -215,11 +216,15 @@ function Tracking (settings) {
                updateBackground();
             }
          }
+
+         getFrameData(i);
       }
       for(var i = 0; i < self.getFrameId(); i++) {
          var image = new Image();
          images.push(image);
          images[i].src = path+"images/"+self.getContrast()+"/"+"frame"+fillString(i.toString(),3)+imageExtension;
+
+         getFrameData(i);
       }
    }
 
@@ -249,12 +254,31 @@ function Tracking (settings) {
    }
 
    function usingCurrentFrameData() {
-      $.get(path+"frames/"+"frame"+frameId+".json", function(data) {
-         cells = data.cells;
-         refreshBoundingBoxes(cells);
-         updateCellmasks();
-      });
+      cells = getFrameData(frameId).cells;
+
+      refreshBoundingBoxes(cells);
+      updateCellmasks();
    } 
+
+   function getFrameData(id) {
+      var index = frameCache.containsKey(id);
+      if(index > -1) {
+         return JSON.parse(frameCache[index][1]);
+      }
+      else {
+         var missedFrameData;
+         $.ajax({
+            type: "GET",
+            url: path+"frames/"+"frame"+fillString(id.toString(),3)+".json",
+            success: function(frameData) {
+               missedFrameData = frameData;
+            },
+            async:false
+         });
+         frameCache.push([id, JSON.stringify(missedFrameData)]);
+         return missedFrameData;
+      }  
+   }
 
    function refreshBoundingBoxes(nextCells) {
       boundingboxes = [];
