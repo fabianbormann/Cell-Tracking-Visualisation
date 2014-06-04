@@ -77,6 +77,7 @@ function Tracking (settings) {
       });
 
       preload();
+      buffer(30);
       usingCurrentFrameData();
       play();
    }
@@ -216,16 +217,39 @@ function Tracking (settings) {
                updateBackground();
             }
          }
-
-         getFrameData(i);
       }
       for(var i = 0; i < self.getFrameId(); i++) {
          var image = new Image();
          images.push(image);
-         images[i].src = path+"images/"+self.getContrast()+"/"+"frame"+fillString(i.toString(),3)+imageExtension;
-
-         getFrameData(i);
+         images[i].src = path+"images/"+self.getContrast()+"/"+"frame"+fillString(i.toString(),3)+imageExtension; 
       }
+   }
+
+   function buffer(frameCount) {
+      for(var i = self.getFrameId(); i < self.getFrameId()+frameCount; i++) {
+         if(i < maximalFrames) {
+            getFrameData(i);
+         }
+         else {
+            break;
+         }
+      }
+   }
+
+   function bufferingNecessary() {
+      var necessary = false;
+      for(var i = self.getFrameId(); i < self.getFrameId()+40; i++) {
+         if(i < maximalFrames) {
+            if(frameCache[i] == null) {
+               necessary = true;
+               break;
+            }
+         }
+         else {
+            break;
+         }
+      }
+      return necessary;
    }
 
    function updateBackground() {
