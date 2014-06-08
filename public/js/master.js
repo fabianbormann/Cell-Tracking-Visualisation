@@ -32,6 +32,7 @@ function Tracking (settings) {
    var repeat = false;
    var frameId = "000";
    var speed = 10;
+   var relativeSpeed = 10;
 
    var adjacencyList;
    var cache = [];
@@ -92,6 +93,7 @@ function Tracking (settings) {
 
    this.stop = function() {
       togglePlayButton();
+      resetFPS = true;
       run = false;
    }
 
@@ -122,6 +124,7 @@ function Tracking (settings) {
 
    this.setSpeed = function(animationSpeed) {
       speed = animationSpeed;
+      relativeSpeed = animationSpeed;
    }
 
    this.setFrameId = function(newFrameId) {
@@ -210,12 +213,22 @@ function Tracking (settings) {
       updateCellmasks();
    }
 
+   var resetFPS = true;
    function play() {
       if(run && isNotComplete()) {
          increaseFrameId();
-         logFPS();
+         speedKeeper(getFPS());
+         resetFPS = false;
       }
-      window.setTimeout(play, (1/speed)*1000); 
+      window.setTimeout(play, (1/relativeSpeed)*1000); 
+   }
+
+   function speedKeeper(fps) {
+      console.log("FPS: "+fps+" Speed: "+speed+" corrected Speed: "+relativeSpeed);
+      if(speed < fps)
+         relativeSpeed -= (fps-speed)/2;
+      else  if(speed > fps)
+         relativeSpeed += (speed-fps)/2;
    }
 
    function preload() {
@@ -285,16 +298,16 @@ function Tracking (settings) {
    }
 
    var lastFrame = new Date();
-   function logFPS() {
-      if(self.getFrameId() == 0) {
+   function getFPS() {
+      if(resetFPS) {
          lastFrame = new Date();
+         return speed;
       }
       else {
          var now = new Date();
          var delta = now-lastFrame;
          lastFrame = now;
-         console.clear();
-         console.log(delta);
+         return 1000/delta;
       }
    }
 
