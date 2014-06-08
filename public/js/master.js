@@ -75,15 +75,13 @@ function Tracking (settings) {
       $.get(path+"adjacencylist.json", function(data) {
          adjacencylist = data;
       });
-      $.when(self.lockCanvas())
-         .done(function() {
-            $.when( preload(), buffer(200))
-            .done(function() {
-               //usingCurrentFrameData();
-               self.unlockCanvas();
-               console.log("ok")
-            })
-         })
+      
+      self.lockCanvas();
+      bufferFrameData(0, maximalFrames-1, function() {
+         self.unlockCanvas();
+         usingCurrentFrameData();
+      });
+      preload() 
       play();
    }
 
@@ -170,6 +168,10 @@ function Tracking (settings) {
          if(mouseX >= boxPositionX && mouseX <= boxPositionX+boxWidth) {
             if(mouseY >= boxPositionY && mouseY <= boxPositionY+boxHeight) {
                toggleCellSelection(boundingboxes[i].id);
+               self.lockCanvas();
+               bufferPaths(cells[boundingboxes[i].id][0].path[0], function() {
+                  self.unlockCanvas();
+               });
             }
          }
       }
@@ -184,10 +186,6 @@ function Tracking (settings) {
       });
       getCellsfromFilters();
       updateFilterArea();
-   }
-
-   function updateFilterArea() {
-      $('#filterArea')
    }
 
    function getCellsfromFilters() {
@@ -215,6 +213,7 @@ function Tracking (settings) {
    function play() {
       if(run && isNotComplete()) {
          increaseFrameId();
+         logFPS();
       }
       window.setTimeout(play, (1/speed)*1000); 
    }
@@ -238,31 +237,72 @@ function Tracking (settings) {
       }
    }
 
-   function buffer(frameCount) {
-      var buffer = 0;
-      for(var i = self.getFrameId(); i < self.getFrameId()+frameCount; i++) {
-         if(i < maximalFrames) {
-            getFrameData(i, function(data){
-               buffer++;
+   function bufferFrameData(startFrame, endFrame, bufferCallback) {
+      if(startFrame <= endFrame) {
+         getFrameData(startFrame, function() {
+            bufferFrameData(startFrame+1, endFrame, bufferCallback);
+         });
+      }
+      else
+         executeCallback(bufferCallback);
+   }
+
+   function bufferPaths(path_id, bufferCallback) {
+      cachePath(path_id, function(path) {
+         removeEdge();
+         successors = getSuccessors(path.id);
+         if(successors) {
+            $.each(successors, function(key, successor) {
+               addEdge();
+               bufferPaths(successor, bufferCallback)
             });
          }
-         else {
-            buffer = frameCount;
-            break;
-         }
-      }
+         else
+            executeConditionalCallback((edges == 0), bufferCallback);
+      });
+   }
 
-      while(buffer != frameCount) {console.log(buffer)}
-      console.log("everything buffered")
-      console.log(frameCache)
-      return true;
+   var edges = 0;
+   function addEdge(value) {
+      edges++;
+   }
+
+   function removeEdge() {
+      if(edges > 0)
+         edges--;
+   }
+
+   function executeConditionalCallback(condition, callback) {
+      if(condition) {
+         callback();
+      }
+   }
+
+   function executeCallback(callbackFunction, params) {
+      if(typeof(callbackFunction) == 'function') {
+         callbackFunction(params);
+      }      
+   }
+
+   var lastFrame = new Date();
+   function logFPS() {
+      if(self.getFrameId() == 0) {
+         lastFrame = new Date();
+      }
+      else {
+         var now = new Date();
+         var delta = now-lastFrame;
+         lastFrame = now;
+         console.clear();
+         console.log(delta);
+      }
    }
 
    function bufferingNecessary() {
       var necessary = false;
       for(var i = self.getFrameId(); i < self.getFrameId()+40; i++) {
          if(i < maximalFrames) {
-            if(frameCache[i] == null) {
+            if(frameCache[i] == 'undefined') {
                necessary = true;
                break;
             }
@@ -315,11 +355,11 @@ function Tracking (settings) {
          $.when($.get(path+"frames/"+"frame"+fillString(id.toString(),3)+".json"))
          .done(function( data ) {
             frameCache.push([id, JSON.stringify(data)]);
-            callback(data);
+            executeCallback(callback, data);
          })
          .fail(function() {
             console.error( 'frame data request failed.' );
-            callback(null);
+            executeCallback(callback, null);
          });
       }  
    }
@@ -353,8 +393,8 @@ function Tracking (settings) {
          }
          else {
             $.each(adjacencylist[cellPath.id].suc, function(index, successor) {
-               successorPath = getCachedPath(successor);
-               nextFrameSelectedCellIds.push(successorPath.cells[0].cellid);
+               var successorPath = getCachedPath(successor);
+               nextFrameSelectedCellIds.push(successorPath.cells[0].cellid);               
             });
          }
       });
@@ -362,30 +402,38 @@ function Tracking (settings) {
       usingCurrentFrameData(); 
    }
 
+   function getSuccessors(path_id) {
+      if (adjacencylist[path_id].suc.length > 0)
+         return adjacencylist[path_id].suc;
+      else
+         return null;
+   }
+
    function getCachedPath(id) {
       var index = cache.containsKey(id);
+      return JSON.parse(cache[index][1]);     
+   }
+
+   function cachePath(id, callback) {
+      var index = cache.containsKey(id);
       if(index > -1) {
-         return JSON.parse(cache[index][1]);
+         executeCallback(callback, JSON.parse(cache[index][1]));
       }
       else {
-         var missedPath;
-         $.ajax({
-            type: "GET",
-            url: "/path/"+id+"/"+experiment,
-            success: function(cellPath) {
-               missedPath = cellPath;
-            },
-            async:false
+         $.when($.get("/path/"+id+"/"+experiment))
+         .done(function( data ) {
+            cache.push([id, JSON.stringify(data)])
+            executeCallback(callback, data);
+         })
+         .fail(function() {
+            console.error( 'Path request failed.' );
+            executeCallback(callback, null);
          });
-         cache.push([id, JSON.stringify(missedPath)]);
-         return missedPath;
-      }
+      }  
    }
 
    function updateCellmasks() {
-
       foregroundContext.clearRect(0,0,foregroundCanvas.width,foregroundCanvas.height);
-
       for(var i = 0; i <= selectedCells.length-1; i++) {
          drawMask(selectedCells[i]);
       }
