@@ -12,6 +12,7 @@ a {text-decoration: none;}
 .content {padding-top: 20px;}
 
 .celltrack_canvas {max-width: 600px;}
+#celltrack_state {max-width: 600px; width: 75%; opacity: 0.85; display: none;}
 
 .ui.progress {max-width: 600px; width: 56.25%;}
 

@@ -75,10 +75,15 @@ function Tracking (settings) {
       $.get(path+"adjacencylist.json", function(data) {
          adjacencylist = data;
       });
-
-      preload();
-      buffer(30);
-      usingCurrentFrameData();
+      $.when(self.lockCanvas())
+         .done(function() {
+            $.when( preload(), buffer(200))
+            .done(function() {
+               //usingCurrentFrameData();
+               self.unlockCanvas();
+               console.log("ok")
+            })
+         })
       play();
    }
 
@@ -137,6 +142,14 @@ function Tracking (settings) {
 
    this.getFrameId = function() {
       return parseInt(frameId);
+   }
+
+   this.lockCanvas = function() {
+      $('#celltrack_state').show();
+   }
+
+   this.unlockCanvas = function() {
+      $('#celltrack_state').hide();
    }
 
    this.selectCell = function(event) {
@@ -226,14 +239,23 @@ function Tracking (settings) {
    }
 
    function buffer(frameCount) {
+      var buffer = 0;
       for(var i = self.getFrameId(); i < self.getFrameId()+frameCount; i++) {
          if(i < maximalFrames) {
-            getFrameData(i);
+            getFrameData(i, function(data){
+               buffer++;
+            });
          }
          else {
+            buffer = frameCount;
             break;
          }
       }
+
+      while(buffer != frameCount) {console.log(buffer)}
+      console.log("everything buffered")
+      console.log(frameCache)
+      return true;
    }
 
    function bufferingNecessary() {
@@ -284,23 +306,21 @@ function Tracking (settings) {
       updateCellmasks();
    } 
 
-   function getFrameData(id) {
+   function getFrameData(id, callback) {
       var index = frameCache.containsKey(id);
       if(index > -1) {
          return JSON.parse(frameCache[index][1]);
       }
       else {
-         var missedFrameData;
-         $.ajax({
-            type: "GET",
-            url: path+"frames/"+"frame"+fillString(id.toString(),3)+".json",
-            success: function(frameData) {
-               missedFrameData = frameData;
-            },
-            async:false
+         $.when($.get(path+"frames/"+"frame"+fillString(id.toString(),3)+".json"))
+         .done(function( data ) {
+            frameCache.push([id, JSON.stringify(data)]);
+            callback(data);
+         })
+         .fail(function() {
+            console.error( 'frame data request failed.' );
+            callback(null);
          });
-         frameCache.push([id, JSON.stringify(missedFrameData)]);
-         return missedFrameData;
       }  
    }
 
