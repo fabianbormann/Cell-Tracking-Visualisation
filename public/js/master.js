@@ -153,6 +153,25 @@ function Tracking (settings) {
       $('#celltrack_state').hide();
    }
 
+   var blocked = false;
+   this.isBlocked = function() {
+      return blocked;
+   }
+
+   this.block = function() {
+      if (self.isRunning()) {
+         self.stop();
+         blocked = true;
+      }
+   }
+
+   this.unblock = function() {
+      if (!self.isRunning() && blocked) {
+         self.start();
+         blocked = false;
+      }
+   }
+
    this.selectCell = function(event) {
       var posX = parseInt ($("#foregroundCanvas").offset().left);
       var posY = parseInt ($("#foregroundCanvas").offset().top);
@@ -170,10 +189,12 @@ function Tracking (settings) {
 
          if(mouseX >= boxPositionX && mouseX <= boxPositionX+boxWidth) {
             if(mouseY >= boxPositionY && mouseY <= boxPositionY+boxHeight) {
+               self.block();
                toggleCellSelection(boundingboxes[i].id);
                self.lockCanvas();
                bufferPaths(cells[boundingboxes[i].id][0].path[0], function() {
                   self.unlockCanvas();
+                  self.unblock();
                });
             }
          }
@@ -344,6 +365,7 @@ function Tracking (settings) {
             return true;
          }
          else {
+            relativeSpeed = speed;
             self.stop();
             return false;
          }
