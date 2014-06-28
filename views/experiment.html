@@ -145,7 +145,7 @@
       }
 
       relativePosition = mouseX/$( this ).width();
-      tracking.setFrameId(Math.round((settings.maximalFrames-1)*relativePosition));
+      tracking.jumpTo(Math.round((settings.maximalFrames-1)*relativePosition));
     });
   });
   </script>

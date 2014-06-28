@@ -127,6 +127,11 @@ function Tracking (settings) {
       relativeSpeed = animationSpeed;
    }
 
+   this.jumpTo = function(nextFrame) {
+      clearSelections();
+      self.setFrameId(nextFrame);
+   }
+
    this.setFrameId = function(newFrameId) {
       if(isString(newFrameId)) {
          frameId = newFrameId;
@@ -250,6 +255,11 @@ function Tracking (settings) {
          relativeSpeed -= (fps-speed)/2;
       else  if(speed > fps)
          relativeSpeed += (speed-fps)/2;
+   }
+
+   function clearSelections() {
+      selectedCells = [];
+      boundingboxes = [];
    }
 
    function preload() {
