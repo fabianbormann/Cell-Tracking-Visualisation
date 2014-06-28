@@ -22,6 +22,13 @@ function Tracking (settings) {
       return result;
    }
 
+   Array.prototype.unique = function() {
+      var result = this.filter( function( item, index, inputArray ) {
+         return inputArray.indexOf(item) == index;
+      });
+      return result;
+   }
+
    var self = this;
 
    var path = settings.path;
@@ -128,11 +135,12 @@ function Tracking (settings) {
    }
 
    this.jumpTo = function(nextFrame) {
-      clearSelections();
-      self.setFrameId(nextFrame);
+      calculateSelectedCells(nextFrame);
+      self.setFrameId(nextFrame, true);
+      usingCurrentFrameData(); 
    }
 
-   this.setFrameId = function(newFrameId) {
+   this.setFrameId = function(newFrameId, noForegroundUpdate) {
       if(isString(newFrameId)) {
          frameId = newFrameId;
       }
@@ -143,7 +151,9 @@ function Tracking (settings) {
       var progress = (frameId/maximalFrames)*100;
       $("#progress").width(progress+'%');
       updateBackground();
-      updateForeground();
+
+      if(!noForegroundUpdate)
+         updateForeground();
    }
 
    this.getFrameId = function() {
@@ -224,6 +234,53 @@ function Tracking (settings) {
       });
    }
 
+   function calculateSelectedCells(nextFrame) {
+      if(nextFrame < self.getFrameId()) {
+         var pastCells = [];
+         $.each(selectedCells, function(key, cell) {
+            pastCells = pastCells.concat(getPastCells(getCachedPath(cells[cell][0].path[0]), nextFrame));
+         });
+         selectedCells = pastCells.unique();         
+      }
+      else {
+         var futureCells = [];
+         $.each(selectedCells, function(key, cell) {
+            futureCells = futureCells.concat(getFutureCells(getCachedPath(cells[cell][0].path[0]), nextFrame));
+         });
+         selectedCells = futureCells.unique();
+      }
+   }
+
+   function getFutureCells(path, requestedFrameId) {
+      var lastFrameInPath = path.cells[path.cells.length-1].frameid;
+      var nextSelectedcCells = [];
+      if(requestedFrameId <= lastFrameInPath) {
+         if(path.cells[ requestedFrameId-path.cells[0].frameid ])
+            nextSelectedcCells.push(path.cells[ requestedFrameId-path.cells[0].frameid ].cellid);
+      }
+      else {
+         $.each(getSuccessors(path.id), function(index, successor) {
+            nextSelectedcCells = nextSelectedcCells.concat(getFutureCells(getCachedPath(successor), requestedFrameId));
+         });
+      }
+      return nextSelectedcCells;
+   }
+
+   function getPastCells(path, requestedFrameId) {
+      var firstFrameInPath = path.cells[0].frameid;
+      var nextSelectedcCells = [];
+      if(firstFrameInPath <= requestedFrameId) {
+         if(path.cells[ requestedFrameId-path.cells[0].frameid ])
+            nextSelectedcCells.push(path.cells[ requestedFrameId-path.cells[0].frameid ].cellid);
+      }
+      else {
+         $.each(getPredecessors(path.id), function(index, predecessor) {
+            nextSelectedcCells = nextSelectedcCells.concat(getPastCells(getCachedPath(predecessor), requestedFrameId));
+         });
+      }
+      return nextSelectedcCells;
+   }
+
    function checkFilter(filteredCells) {
       $.each(filteredCells, function( key, cells) {
          if(cells[0][0] <= self.getFrameId()) {
@@ -250,16 +307,10 @@ function Tracking (settings) {
    }
 
    function speedKeeper(fps) {
-      console.log("FPS: "+fps+" Speed: "+speed+" corrected Speed: "+relativeSpeed);
       if(speed < fps)
          relativeSpeed -= (fps-speed)/2;
       else  if(speed > fps)
          relativeSpeed += (speed-fps)/2;
-   }
-
-   function clearSelections() {
-      selectedCells = [];
-      boundingboxes = [];
    }
 
    function preload() {
@@ -295,7 +346,7 @@ function Tracking (settings) {
       cachePath(path_id, function(path) {
          removeEdge();
          successors = getSuccessors(path.id);
-         if(successors) {
+         if(successors.length > 0) {
             $.each(successors, function(key, successor) {
                addEdge();
                bufferPaths(successor, bufferCallback)
@@ -451,12 +502,34 @@ function Tracking (settings) {
       if (adjacencylist[path_id].suc.length > 0)
          return adjacencylist[path_id].suc;
       else
-         return null;
+         return [];
+   }
+
+   function getPredecessors(path_id) {
+      if (adjacencylist[path_id].pre.length > 0)
+         return adjacencylist[path_id].pre;
+      else
+         return [];
    }
 
    function getCachedPath(id) {
       var index = cache.containsKey(id);
-      return JSON.parse(cache[index][1]);     
+      if(index != -1) {
+         return JSON.parse(cache[index][1]);     
+      }
+      else {
+         console.log("not in cache => UPDATE")
+         var result = null;
+         jQuery.ajax({
+            url: "/path/"+id+"/"+experiment,
+            success: function(data) {
+               result = data;
+               cache.push([id, JSON.stringify(data)])
+            },
+            async: false
+         }); 
+         return result;
+      }
    }
 
    function cachePath(id, callback) {

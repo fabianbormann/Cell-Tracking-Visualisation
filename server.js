@@ -4,6 +4,7 @@ var express = require('express'),
     upload = require('./routes/upload'),
     about = require('./routes/about'),
     utils = require('./routes/utils');
+	multipart = require('connect-multiparty');
 
 var app = express();
 app.use(express.limit('500mb'));
@@ -15,7 +16,7 @@ app.configure(function () {
 
 	app.use(express.json());
 	app.use(express.urlencoded());
-	app.use(express.multipart());
+	app.use(multipart());
 	
 	app.use(express.logger('dev'));
 	app.use(express.static(__dirname + '/public/'));
