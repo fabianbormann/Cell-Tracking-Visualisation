@@ -164,7 +164,54 @@
 <div class="twelve wide column">
   <p class="ui large label"> {{ experiment.authors }} </p>
 </div>
+<div class="twelve wide column">
+    <div id="canvasContainer">
+      <canvas id="backgroundCanvas" class="celltrack_canvas" style="position: absolute; z-index: 0">Sorry, your browser cannot display this image. Download and install the latest version of
+        your favorite browser and try it again.</canvas>
+      <canvas id="foregroundCanvas" class="celltrack_canvas" style="position: absolute; z-index: 1">Sorry, your browser cannot display this image. Download and install the latest version of
+        your favorite browser and try it again.</canvas>
+      <div class="ui active dimmer" id="celltrack_state">
+        <div class="ui loader"></div>
+      </div>
+    </div>
+    <div class="ui divider" style="border: none"></div>
+    <div class="ui progress">
+      <div id="progress" class="notransition bar" style="width: 0%;"></div>
+    </div>
+
+    <div id="buttonmenu" class="ui icon buttons">
+      <div id="playButton" class="huge ui toggle button">
+        <i id="playIcon" class="play icon"></i>
+        <i id="pauseIcon" class="hidden pause icon"></i>
+      </div>
+      <div id="backwardButton" class="huge ui button">
+        <i class="step backward icon"></i>
+      </div>
+        <div id="forwardButton" class="huge ui button">
+        <i class="step forward icon"></i>
+      </div>
+      <div id="stopButton" class="huge ui button">
+        <i class="stop icon"></i>
+      </div>
+      <div id="repeatButton" class="huge ui toggle button">
+        <i class="repeat icon"></i>
+      </div>
+    </div>
+</div>
 <div class="four wide column">
+  <div class="ui secondary segment">
+    <h2 class="ui header">
+      <i class="comment outline icon"></i>
+      Description
+    </h2>
+    <p>{{ experiment.description }}</p>
+  </div>
+
+  <div class="ui secondary segment">
+    <h2 class="ui header">
+      <i class="puzzle piece icon"></i>
+      Toolbox
+    </h2>
     <div class="ui selection dropdown">
       <input type="hidden" name="contrast" id="contrast">
       <div class="default text">Contrast variations</div>
@@ -175,100 +222,76 @@
         {% endfor %}
       </div>
     </div>
-</div>
-<div class="twelve wide column">
-      <div id="canvasContainer">
-        <canvas id="backgroundCanvas" class="celltrack_canvas" style="position: absolute; z-index: 0">Sorry, your browser cannot display this image. Download and install the latest version of
-          your favorite browser and try it again.</canvas>
-        <canvas id="foregroundCanvas" class="celltrack_canvas" style="position: absolute; z-index: 1">Sorry, your browser cannot display this image. Download and install the latest version of
-          your favorite browser and try it again.</canvas>
-        <div class="ui active dimmer" id="celltrack_state">
-          <div class="ui loader"></div>
-        </div>
-      </div>
-</div>
-<div class="four wide column">
-  <div class="ui secondary segment">
-    <h2 class="ui header">
-      <i class="comment outline icon"></i>
-      Description
-    </h2>
-    <p>{{ experiment.description }}</p>
-  </div>
-    <div class="ui secondary segment">
-      <h2 class="ui header">
-        <i class="wrench icon"></i>
-        Filter Settings
-      </h2>
-      <div class="ui selection dropdown">
-        <input type="hidden" id="filtertype" name="filtertype">
-        <div class="default text">Type</div>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-          <div class="item active" data-text="meanspeed">Meanspeed</div>
-          <div class="item" data-text="directness">Directness</div>
-          <div class="item" data-text="length">Length</div>
-          <div class="item" data-text="angle">Angle</div>
-          <div class="item" data-text="displacement">Displacement</div>
-          <div class="item" data-text="speed">Speed</div>
-        </div>
-      </div>
-      <div class="ui divider"></div>
-      <div>Preseclect all paths  
-        <div class="ui inline dropdown">
-          <input type="hidden" id="included" value="included" name="included">
-          <div class="text">included</div>
-          <i class="dropdown icon"></i>
-          <div class="menu">
-            <div class="item active" data-text="included">included</div>
-            <div class="item" data-text="not included">not included</div>
+    <div class="ui divider"></div>
+    Selection Color: <input type="color" name="selectionColor" value="#00FF00">
+    <div class="ui divider"></div>
+    <div class="ui form">
+      <div class="grouped inline fields">
+        <div class="ui field">
+          <div class="ui radio checkbox">
+            <input id="single_cell" type="radio" name="selection_type" checked="">
+            <label for="single_cell">Cell selection</label>
           </div>
         </div>
-        in the values between:
+        <div class="ui field">
+          <div class="ui radio checkbox">
+            <input id="tree" type="radio" name="selection_type">
+            <label for="tree">Tree selection</label>
+          </div>
+        </div>
       </div>
-      <div class="ui input">
-        <input type="text" id="from" value="1">
-      </div>
-      <div class="ui input">
-        <label for="to">and</label>
-        <input id="to" type="text" value="1.2">
-      </div>
-      <div class="ui divider"></div>
-      <div id="addFilter" class="ui green down large button">
-        <i class="add sign icon"></i>
-        Add Filter
-      </div>
-    </div>
-    <div style="display:none" id="filterArea" class="ui secondary segment">
-      <h2 class="ui header">
-        Active Filter
-      </h2>
-      <div id="filter"></div>
     </div>
   </div>
 
-<div class="sixteen wide column">
-  <div class="ui progress">
-    <div id="progress" class="notransition bar" style="width: 0%;"></div>
+  <div class="ui secondary segment">
+    <h2 class="ui header">
+      <i class="wrench icon"></i>
+      Filter Settings
+    </h2>
+    <div class="ui selection dropdown">
+      <input type="hidden" id="filtertype" name="filtertype">
+      <div class="default text">Type</div>
+      <i class="dropdown icon"></i>
+      <div class="menu">
+        <div class="item active" data-text="meanspeed">Meanspeed</div>
+        <div class="item" data-text="directness">Directness</div>
+        <div class="item" data-text="length">Length</div>
+        <div class="item" data-text="angle">Angle</div>
+        <div class="item" data-text="displacement">Displacement</div>
+        <div class="item" data-text="speed">Speed</div>
+      </div>
+    </div>
+    <div class="ui divider"></div>
+    <div>Preseclect all paths  
+      <div class="ui inline dropdown">
+        <input type="hidden" id="included" value="included" name="included">
+        <div class="text">included</div>
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <div class="item active" data-text="included">included</div>
+          <div class="item" data-text="not included">not included</div>
+        </div>
+      </div>
+      in the values between:
+    </div>
+    <div class="ui input">
+      <input type="text" id="from" value="1">
+    </div>
+    <div class="ui input">
+      <label for="to">and</label>
+      <input id="to" type="text" value="1.2">
+    </div>
+    <div class="ui divider"></div>
+    <div id="addFilter" class="ui green down large button">
+      <i class="add sign icon"></i>
+      Add Filter
+    </div>
   </div>
-</div>
-
-<div id="buttonmenu" class="ui icon buttons">
-  <div id="playButton" class="huge ui toggle button">
-    <i id="playIcon" class="play icon"></i>
-    <i id="pauseIcon" class="hidden pause icon"></i>
-  </div>
-  <div id="backwardButton" class="huge ui button">
-    <i class="step backward icon"></i>
-  </div>
-    <div id="forwardButton" class="huge ui button">
-    <i class="step forward icon"></i>
-  </div>
-  <div id="stopButton" class="huge ui button">
-    <i class="stop icon"></i>
-  </div>
-  <div id="repeatButton" class="huge ui toggle button">
-    <i class="repeat icon"></i>
+  <div style="display:none" id="filterArea" class="ui secondary segment">
+    <h2 class="ui header">
+      Active Filter
+    </h2>
+    <div id="filter"></div>
   </div>
 </div>
 
