@@ -138,7 +138,6 @@ function Tracking (settings) {
    }
 
    this.jumpTo = function(nextFrame) {
-      selectedCellsColor = [];
       calculateSelectedCells(nextFrame);
       self.setFrameId(nextFrame, true);
       usingCurrentFrameData(); 
@@ -248,17 +247,35 @@ function Tracking (settings) {
    function calculateSelectedCells(nextFrame) {
       if(nextFrame < self.getFrameId()) {
          var pastCells = [];
+         var pastCellColors = [];
          $.each(selectedCells, function(key, cell) {
-            pastCells = pastCells.concat(getPastCells(getCachedPath(cells[cell][0].path[0]), nextFrame));
+            var pastTree = getPastCells(getCachedPath(cells[cell][0].path[0]), nextFrame);
+            pastCells = pastCells.concat(pastTree);
+
+            $.each(pastTree.unique(), function(pastKey, pastCell) {
+               var color_index = pastCellColors.containsKey(pastCell);
+               if (color_index == -1)
+                  pastCellColors.push([pastCell, getSelectedCellColor(cell)]);
+            });
          });
-         selectedCells = pastCells.unique();         
+         selectedCells = pastCells.unique(); 
+         selectedCellsColor = pastCellColors;        
       }
       else {
          var futureCells = [];
+         var futureCellColors = [];
          $.each(selectedCells, function(key, cell) {
-            futureCells = futureCells.concat(getFutureCells(getCachedPath(cells[cell][0].path[0]), nextFrame));
+            var futureTree = getFutureCells(getCachedPath(cells[cell][0].path[0]), nextFrame);
+            futureCells = futureCells.concat(futureTree);
+
+            $.each(futureTree.unique(), function(futureKey, futureCell) {
+               var color_index = futureCellColors.containsKey(futureCell);
+               if (color_index == -1)
+                  futureCellColors.push([futureCell, getSelectedCellColor(cell)]);
+            });
          });
          selectedCells = futureCells.unique();
+         selectedCellsColor = futureCellColors;
       }
    }
 
