@@ -41,6 +41,8 @@ function Tracking (settings) {
    var speed = 10;
    var relativeSpeed = 10;
 
+   var selectionColor = "00FF00"
+
    var adjacencyList;
    var cache = [];
    var frameCache = [];
@@ -56,6 +58,7 @@ function Tracking (settings) {
 
    var cells;
    var selectedCells = [];
+   var selectedCellsColor = [];
    var boundingboxes = [];
 
    function init() {
@@ -135,9 +138,17 @@ function Tracking (settings) {
    }
 
    this.jumpTo = function(nextFrame) {
+      selectedCellsColor = [];
       calculateSelectedCells(nextFrame);
       self.setFrameId(nextFrame, true);
       usingCurrentFrameData(); 
+   }
+
+   this.setSelectionColor = function(color) {
+      if(color.substr(0,2) == "0x")
+         color = color.substr(2);
+      
+      selectionColor = color;
    }
 
    this.setFrameId = function(newFrameId, noForegroundUpdate) {
@@ -481,20 +492,24 @@ function Tracking (settings) {
 
    function updateForeground() {
       var nextFrameSelectedCellIds = [];
+      var nextFrameSelectedCellColors = [];
       $.each(selectedCells, function(index, value) {
          var cellPath = getCachedPath(cells[value][0].path[0]);
          var cellIndex = cellPath.cells.containsObject(value, self.getFrameId()-1);
          if(cellIndex > -1 && cellPath.cells[cellIndex+1]) {
             nextFrameSelectedCellIds.push(cellPath.cells[cellIndex+1].cellid);
+            nextFrameSelectedCellColors.push([cellPath.cells[cellIndex+1].cellid, getSelectedCellColor(value)]);
          }
          else {
             $.each(adjacencylist[cellPath.id].suc, function(index, successor) {
                var successorPath = getCachedPath(successor);
-               nextFrameSelectedCellIds.push(successorPath.cells[0].cellid);               
+               nextFrameSelectedCellIds.push(successorPath.cells[0].cellid);
+               nextFrameSelectedCellColors.push([successorPath.cells[0].cellid, getSelectedCellColor(value)]);              
             });
          }
       });
       selectedCells = nextFrameSelectedCellIds;
+      selectedCellsColor = nextFrameSelectedCellColors;
       usingCurrentFrameData(); 
    }
 
@@ -510,6 +525,15 @@ function Tracking (settings) {
          return adjacencylist[path_id].pre;
       else
          return [];
+   }
+
+   function getSelectedCellColor(cell_id) {
+      var color_index = selectedCellsColor.containsKey(cell_id);
+      if (color_index != -1)
+         return selectedCellsColor[color_index][1];
+      else {
+         return "00FF00";
+      }
    }
 
    function getCachedPath(id) {
@@ -563,10 +587,14 @@ function Tracking (settings) {
          clearMask(cell_id);
          maskIndex = $.inArray(cell_id, selectedCells);
          selectedCells.splice(maskIndex, 1);
+         var color_index = selectedCellsColor.containsKey(cell_id);
+         if (color_index != -1)
+            selectedCellsColor.splice(color_index, 1);
       }
       else {
-         drawMask(cell_id);
          selectedCells.push(cell_id);
+         selectedCellsColor.push([cell_id, selectionColor]);
+         drawMask(cell_id);
       }
    }
 
@@ -588,6 +616,7 @@ function Tracking (settings) {
     
       var pixelPosX = 0; 
       var pixelPosY = 0;
+      var mask_color = getSelectedCellColor(cell_id);
       for (var i = 0; i < cellmask.length; i++) {
          if(pixelPosX >= boundingboxes[cell_id].width){
             pixelPosX = 0;
@@ -598,7 +627,7 @@ function Tracking (settings) {
          }
 
          if(cellmask[i] === "1"){
-            foregroundContext.fillStyle = 'rgba(0,225,0,1)';
+            foregroundContext.fillStyle = mask_color;
             foregroundContext.fillRect(pixelPosX+boxPosX-1, pixelPosY+boxPosY-1,1,1);
          } 
       }

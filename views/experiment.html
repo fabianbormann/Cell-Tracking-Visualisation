@@ -72,6 +72,10 @@
       tracking.setContrast($("#contrast").val());   
     });
 
+    $("#selectionColor").change(function() {
+      tracking.setSelectionColor($("#selectionColor").val());
+    })
+
     $("#addFilter").click(function () {
       tracking.addFilter({
         option : $("#filtertype").val(),
@@ -223,7 +227,7 @@
       </div>
     </div>
     <div class="ui divider"></div>
-    Selection Color: <input type="color" name="selectionColor" value="#00FF00">
+    Selection Color: <input type="color" name="selectionColor" value="#00FF00" id="selectionColor">
     <div class="ui divider"></div>
     <div class="ui form">
       <div class="grouped inline fields">
