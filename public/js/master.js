@@ -69,7 +69,9 @@ function Tracking (settings) {
       foregroundContext = foregroundCanvas.getContext('2d');
 
       var image = new Image();
+
       image.src = path+"images/"+self.getContrast()+"/"+"frame000"+imageExtension;
+
       image.onload = function() {
          backgroundCanvas.width  = image.width;
          backgroundCanvas.height = image.height;
@@ -206,23 +208,27 @@ function Tracking (settings) {
 
       mouseX = mouseX*(backgroundCanvas.width/$("#backgroundCanvas").width());
       mouseY = mouseY*(backgroundCanvas.height/$("#backgroundCanvas").height());
-      for (var i = 0; i <= boundingboxes.length-1; i++) {
-         var boxWidth = boundingboxes[i].width;
-         var boxHeight = boundingboxes[i].height;
-         var boxPositionX = boundingboxes[i].x-(boundingboxes[i].width/2);
-         var boxPositionY = boundingboxes[i].y-(boundingboxes[i].height/2);
 
-         if(mouseX >= boxPositionX && mouseX <= boxPositionX+boxWidth) {
-            if(mouseY >= boxPositionY && mouseY <= boxPositionY+boxHeight) {
-               self.block();
-               toggleCellSelection(boundingboxes[i].id);
-               self.lockCanvas();
-               bufferPaths(cells[boundingboxes[i].id][0].path[0], function() {
-                  self.unlockCanvas();
-                  self.unblock();
-               });
-            }
-         }
+      var minDistance = [null];
+      
+      // select the nearest cell 
+      for (var i = 1; i <= boundingboxes.length-1; i++) {
+         var distance = Math.sqrt(Math.pow(boundingboxes[i].x - mouseX,2) +
+           Math.pow(boundingboxes[i].y - mouseY,2));
+         
+         if (distance < minDistance[0] || minDistance[0]==null)
+            minDistance = [distance,boundingboxes[i].id];
+      }
+
+      // threshold for distance 
+      if (minDistance[0]<100) {
+         self.block();
+         toggleCellSelection(minDistance[1]);
+         self.lockCanvas();
+         bufferPaths(cells[minDistance[1]][0].path[0], function() {
+            self.unlockCanvas();
+            self.unblock();
+         });
       }
    }
 

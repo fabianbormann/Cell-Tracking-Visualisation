@@ -1,10 +1,10 @@
-var express = require('express'),
-	swig = require('swig'),
+var express = require('express'), // routes
+	swig = require('swig'), // template engine 
 	experiments = require('./routes/experiments'),
     upload = require('./routes/upload'),
     about = require('./routes/about'),
     utils = require('./routes/utils');
-	multipart = require('connect-multiparty');
+	multipart = require('connect-multiparty'); // upload
 
 var app = express();
 app.use(express.limit('500mb'));
