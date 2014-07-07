@@ -237,17 +237,25 @@ function Tracking (settings) {
          option : filterSettings.option,
          from : filterSettings.from,
          to : filterSettings.to,
-         inculde : filterSettings.include
+         inculde : filterSettings.include,
+         cells : getCellsfromFilters(filterSettings)
       });
-      getCellsfromFilters();
+      
       updateFilterArea();
    }
 
-   function getCellsfromFilters() {
-      $.post("/path/filter/", {filters : filters, experiment : experiment}, function(filteredCells) {
-         console.log(filteredCells)
-         checkFilter(filteredCells);
-      });
+   function getPathsfromFilter(filterSettings) {
+      var result = [];
+      jQuery.ajax({
+         type: 'POST',
+         url: '/path/filter/',
+         data: {settings : filterSettings},
+         success: function(data) {
+            result = data;
+         },
+         async: false
+      }); 
+      return result;
    }
 
    function calculateSelectedCells(nextFrame) {
@@ -313,21 +321,6 @@ function Tracking (settings) {
          });
       }
       return nextSelectedcCells;
-   }
-
-   function checkFilter(filteredCells) {
-      $.each(filteredCells, function( key, cells) {
-         if(cells[0][0] <= self.getFrameId()) {
-            for(var i = 0; i < cells.length; i++) {
-               if(cells[i][0] == self.getFrameId()) {
-                  console.log(cells[i][1])
-                  selectedCells.push(cells[i][1]);
-                  break;
-               }
-            }
-         }
-      });
-      updateCellmasks();
    }
 
    var resetFPS = true;
@@ -565,7 +558,6 @@ function Tracking (settings) {
          return JSON.parse(cache[index][1]);     
       }
       else {
-         console.log("not in cache => UPDATE")
          var result = null;
          jQuery.ajax({
             url: "/path/"+id+"/"+experiment,
@@ -629,7 +621,7 @@ function Tracking (settings) {
    }
 
    function clearMask(cell_id) {
-      foregroundContext.clearRect(boundingboxes[cell_id].x-(boundingboxes[cell_id].width/2),boundingboxes[cell_id].y-(boundingboxes[cell_id].height/2),boundingboxes[cell_id].width, boundingboxes[cell_id].height);
+      foregroundContext.clearRect(boundingboxes[cell_id].x-(boundingboxes[cell_id].width/2)-1,boundingboxes[cell_id].y-(boundingboxes[cell_id].height/2)-1,boundingboxes[cell_id].width+1, boundingboxes[cell_id].height+1);
    }
 
    function drawMask(cell_id) {
