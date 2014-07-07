@@ -1,33 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block head %}
-<link rel="stylesheet" href="/css/codemirror.css">
-<link rel="stylesheet" href="/css/docs.css">
-<link rel="stylesheet" href="/css/foldgutter.css">
-<link rel="stylesheet" href="/css/dialog.css">
-<link rel="stylesheet" href="/css/monokai.css">
-<style type="text/css">
-  .CodeMirror {border-top: 1px solid #eee; border-bottom: 1px solid #eee; line-height: 1.3; height: 500px}
-  .CodeMirror-linenumbers { padding: 0 8px; }
-  .CodeMirror { border-top: 1px solid silver; border-bottom: 1px solid silver; }
-    .cm-s-default span.cm-semi { color: blue; font-weight: bold; }
-    .cm-s-default span.cm-dollar { color: orange; font-weight: bold; }
-    .cm-s-default span.cm-arrow { color: brown; }
-    .cm-s-default span.cm-arg-is { color: brown; }
-</style>
 {% parent %}
-<script src="/js/codemirror.js"></script>
-<script src="/js/addon/searchcursor.js"></script>
-<script src="/js/addon/search.js"></script>
-<script src="/js/addon/dialog.js"></script>
-<script src="/js/addon/matchbrackets.js"></script>
-<script src="/js/addon/closebrackets.js"></script>
-<script src="/js/addon/comment.js"></script>
-<script src="/js/addon/hardwrap.js"></script>
-<script src="/js/addon/foldcode.js"></script>
-<script src="/js/addon/brace-fold.js"></script>
-<script src="/js/mode/r/r.js"></script>
-<script src="/js/sublime.js"></script>
 <script type="text/javascript">
   var settings = {
     options : "{{ settings.options }}",
@@ -38,28 +12,7 @@
   };
 
   var tracking;
-
-  function renderCode() {
-    $.post('/render/code', {code : $('#editor').text()}, function(res) {
-      console.log("get response: "+res)
-    });
-  }
-
   $( document ).ready(function() {
-
-    $("#output").hide();
-    $("#editor").show();
-
-    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-      lineNumbers: true,
-      mode: "r",
-      keyMap: "sublime",
-      autoCloseBrackets: true,
-      matchBrackets: true,
-      showCursorWhenSelecting: true,
-      theme: "monokai"
-    });
-
     tracking = new Tracking( settings );
 
     $('.ui.dropdown').dropdown();
@@ -119,26 +72,6 @@
     $("#foregroundCanvas").click(function(event) {
       tracking.selectCell(event);
     });
-
-    $(".ui.top.attached.tabular.menu > a").click(function() {
-      var items = $(".ui.top.attached.tabular.menu > a");
-      if(!$( this ).hasClass( "active" )) {
-        items.removeClass( "active" );
-        $( this ).addClass( "active" );
-
-        if($( this ).hasClass("showEditor")) {
-          $("#editor").show();
-          $("#output").hide();
-        }
-        else if($( this ).hasClass("showOutput")){
-          $("#output").show();
-          $("#editor").hide();
-        }
-      }
-      renderCode();
-    });
-
-    renderCode();
 
     $(".ui.progress").click(function(event) {
       var posX = parseInt ($( this ).offset().left);
@@ -296,70 +229,6 @@
       Active Filter
     </h2>
     <div id="filter"></div>
-  </div>
-</div>
-
-<h3 class="ui header">Statistics</h3>
-<div class="ui divider"></div>
-
-<div class="sixteen wide column">
-  <div class="ui top attached tabular menu">
-    <a class="active item showEditor">
-      Editor
-    </a>
-    <a class="item showOutput">
-      Output
-    </a>
-  </div>
-  <div class="ui bottom attached segment">
-    <div id="output">
-        <div id="preview"></div>
-    </div>
-    <div id="editor">
-        <textarea id="code" name="code">
-        # Code from http://www.mayin.org/ajayshah/KB/R/
-
-        # FIRST LEARN ABOUT LISTS --
-        X = list(height=5.4, weight=54)
-        print("Use default printing --")
-        print(X)
-        print("Accessing individual elements --")
-        cat("Your height is ", X$height, " and your weight is ", X$weight, "\n")
-
-        # FUNCTIONS --
-        square <- function(x) {
-          return(x*x)
-        }
-        cat("The square of 3 is ", square(3), "\n")
-
-                         # default value of the arg is set to 5.
-        cube <- function(x=5) {
-          return(x*x*x);
-        }
-        cat("Calling cube with 2 : ", cube(2), "\n")    # will give 2^3
-        cat("Calling cube        : ", cube(), "\n")     # will default to 5^3.
-
-        # LEARN ABOUT FUNCTIONS THAT RETURN MULTIPLE OBJECTS --
-        powers <- function(x) {
-          parcel = list(x2=x*x, x3=x*x*x, x4=x*x*x*x);
-          return(parcel);
-        }
-
-        X = powers(3);
-        print("Showing powers of 3 --"); print(X);
-
-        # WRITING THIS COMPACTLY (4 lines instead of 7)
-
-        powerful <- function(x) {
-          return(list(x2=x*x, x3=x*x*x, x4=x*x*x*x));
-        }
-        print("Showing powers of 3 --"); print(powerful(3));
-
-        # In R, the last expression in a function is, by default, what is
-        # returned. So you could equally just say:
-        powerful <- function(x) {list(x2=x*x, x3=x*x*x, x4=x*x*x*x)}
-        </textarea>
-    </div>
   </div>
 </div>
 {% endblock %}

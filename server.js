@@ -3,7 +3,6 @@ var express = require('express'), // routes
 	experiments = require('./routes/experiments'),
     upload = require('./routes/upload'),
     about = require('./routes/about'),
-    utils = require('./routes/utils');
 	multipart = require('connect-multiparty'); // upload
 
 var app = express();
@@ -37,7 +36,6 @@ app.get('/path/:path/:experiment', experiments.getPath);
 
 app.post('/path/filter', experiments.getMatchedPaths)
 app.post('/upload', upload.uploadFile);
-app.post('/render/code', utils.render)
 
 app.listen(3000);
 console.log('Listening on port 3000...');
