@@ -1,0 +1,19 @@
+extends layout
+
+block content
+	.sixteen.wide.column
+		.ui.breadcrumb
+			a.section(href='/') Home
+			.divider  / 
+			.active.section About
+		.sixteen.wide.column
+			.ui.icon.header
+				i.circular.question.icon
+				| Celltrack
+				.sub.header
+				| Celltrack is a web application written in
+				a(href='http://nodejs.org/') Node.js
+				| .
+			address
+				a(href='https://github.com/maxlorenz/Celltrack-Node') GitHub
+				br

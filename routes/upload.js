@@ -86,7 +86,7 @@ exports.uploadFile = function(req, res) {
 
                         fs.removeSync(temporary);
 
-	                    res.render('upload_finished', {
+	                    res.render('info', {
 	                        experimentId: experiment._id,
 	                        name: req.body.experimentName,
 	                        size: Math.round(req.files.image.size / 1024 || 0)

@@ -16,9 +16,9 @@ exports.clearDatabase = function(req, res) {
     });
 }
 
-exports.showAll = function(req, res) {
+exports.showWorkspace = function(req, res) {
     Experiment.find(function(err, experiments) {
-        res.render('experiments', { 
+        res.render('workspace', { 
             experiments : experiments 
         });
     });

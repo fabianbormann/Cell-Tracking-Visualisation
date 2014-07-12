@@ -1,0 +1,31 @@
+extends layout
+
+block content
+	.sixteen.wide.column
+		.ui.breadcrumb
+			a.section(href="/") Home
+			.ui.divider
+			.active.section Upload
+	.sixteen.wide.column
+		form(method="post",action="/upload",enctype="multipart/form-data")
+			.ui.form
+				h2.ui.header Upload
+				.ui.divider
+				p New Experiment
+				.ui.grid
+					.ten.wide.column
+						.ui.input
+							input(type="text",maxlength="120",placeholder="Experimentname",name="experimentName",required="required")
+							.ui.corner.label
+								i.asterisk.icon
+					.two.column.row
+						.column.field
+							textarea(type="text",name="description",rows="7",placeholder="Optional description of your experiment")
+						.column.field
+							textarea(type="text",name="authors",rows="7",maxlenght="5000",placeholder="Add optional authors of your experiment")
+					.two.column.row
+						.column
+							input.ui.red.submit.button(type="button",name="img",onclick ="javascript:document.getElementById('hiddenButton').click();",value="Import zip file")
+							input#hiddenButton(type="file",name="image",style='visibility:hidden',required="required")
+						.column
+							input.ui.blue.submit.button(type="submit",value="Create experiment")

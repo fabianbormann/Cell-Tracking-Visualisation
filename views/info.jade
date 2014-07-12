@@ -1,0 +1,27 @@
+extends layout
+block content
+  .sixteen.wide.column
+    .ui.breadcrumb
+        a.section(href="/") Home
+        .ui.divider /
+        .active.section Upload finished
+
+  h2.ui.header Experiment upload finished
+  .ui.divider
+  #{name}
+  .ten.wide.column
+    table.ui.table.segment
+      thead
+        tr
+          th Name
+          th Größe
+      tbody
+        tr
+          td #{ name }
+          td #{ size } kB
+      tfoot
+        tr
+          th(colspan="2")
+            a.ui.blue.labeled.icon.button(href="/experiments/#{experimentId.toString()}")
+              i.lab.icon
+              | Visit experiment

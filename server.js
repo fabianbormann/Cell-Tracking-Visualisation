@@ -1,16 +1,15 @@
 var express = require('express'), // routes
-	swig = require('swig'), // template engine 
 	experiments = require('./routes/experiments'),
     upload = require('./routes/upload'),
-    about = require('./routes/about'),
+    index = require('./routes/index'),
 	multipart = require('connect-multiparty'); // upload
 
 var app = express();
 app.use(express.limit('500mb'));
 
 app.configure(function () {
-	app.engine('html', swig.renderFile);
-	app.set('view engine', 'html');
+
+	app.set('view engine', 'jade');
 	app.set('views', __dirname + '/views');
 
 	app.use(express.json());
@@ -22,16 +21,15 @@ app.configure(function () {
 });
 
 app.set('view cache', false);
-swig.setDefaults({ cache: false });
 // NOTE: You should always cache templates in a production environment.
 // Don't leave both of these to `false` in production!
 
-app.get('/', about.showAbout);
+app.get('/', index.visit);
 app.get('/dropAll', experiments.clearDatabase);
-app.get('/experiments', experiments.showAll);
+app.get('/experiments', experiments.showWorkspace);
 app.get('/experiments/:id', experiments.findById);
 app.get('/upload', upload.showForm);
-app.get('/about', about.showAbout);
+app.get('/about', index.visit);
 app.get('/path/:path/:experiment', experiments.getPath);
 
 app.post('/path/filter', experiments.getMatchedPaths)

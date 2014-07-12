@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  .sixteen.wide.column
+    .ui.breadcrumb
+      a.section(href="/") Home
+      .ui.divider / 
+      .active.section Experiments
+  h2.ui.header Experiments
+  .ui.divider
+  .sixteen.wide.column
+    if experiments.length > 0
+      .ui.items
+        each experiment in experiments
+          a.experiment.preview.item(href="/experiments/#{ experiment._id.toString() }")
+            .image
+              .ui.rounded.medium.image
+                img(src="#{ experiment.image.preview }")
+            .content
+              .ui.large.red.ribbon.label #{ experiment.name }
+              p.description #{ experiment.description.substring(0, 100) }
+    else
+      .ui.warning.message There are no experiments yet.
