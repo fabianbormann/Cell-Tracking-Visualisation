@@ -28,9 +28,35 @@ block append scripts
         tracking.setSelectionColor($("#selectionColor").val());
       })
 
-      $(".filterColor").change(function() {
+      $("#filter").on('change', '.filterColor', function() {
         tracking.filter().changeFilterColor( $( this ).val(), $( this ).data("index"));
-      })
+        tracking.redrawCells(); 
+      });
+
+      $('#filter').on('click', '.circle.blank.third.icon', function() {
+        tracking.filter().deactivate($( this ).data("index"));
+        tracking.redrawCells(); 
+      });
+
+      $('#filter').on('click', '.circle.remove.third.icon', function() {
+        tracking.filter().activate($( this ).data("index"));
+        tracking.redrawCells(); 
+      });
+
+      $('#filter').on('click', '.up.first.icon', function() {
+        tracking.filter().moveUp($( this ).data("index"));
+        tracking.redrawCells(); 
+      });      
+
+      $('#filter').on('click', '.down.secound.icon', function() {
+        tracking.filter().moveDown($( this ).data("index"));
+        tracking.redrawCells(); 
+      });
+
+      $('#filter').on('click', '.remove.fourth.icon', function() {
+        tracking.filter().remove($( this ).data("index"));
+        tracking.redrawCells(); 
+      });
 
       $("#addFilter").click(function () {
         tracking.filter().add({
@@ -192,5 +218,5 @@ block content
         i.add.sign.icon
         | Add Filter
       #filterArea.ui.secondary.segment(style="display:none")
-        h2.ui.header Active Filter
+        h2.ui.header Filter
         #filter

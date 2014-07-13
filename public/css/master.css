@@ -32,14 +32,28 @@ a {text-decoration: none;}
 
 .ui.inline.dropdown .text {color: #E75859;}
 
-.ui.message > .state.first.icon {
+.ui.message > .first.icon {
+	cursor: pointer;
+	position: absolute;
+	top: 1em;
+	right: 5em;
+}
+
+.ui.message > .secound.icon {
+	cursor: pointer;
+	position: absolute;
+	top: 1em;
+	right: 3.5em;
+}
+
+.ui.message > .third.icon {
 	cursor: pointer;
 	position: absolute;
 	top: 1em;
 	right: 2em;
 }
 
-.ui.message > .state.secound.icon {
+.ui.message > .fourth.icon {
 	cursor: pointer;
 	position: absolute;
 	top: 1em;

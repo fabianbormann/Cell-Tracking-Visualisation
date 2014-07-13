@@ -5,6 +5,7 @@ function TrackingFilter() {
   this.add = function(settings) {
     filter = {};
     filter.color = "#FF00FF";
+    filter.active = true;
     filter.option = settings.option;
     filter.include = settings.include;
     filter.from = settings.from;
@@ -14,37 +15,55 @@ function TrackingFilter() {
     filters.push(filter);
   }
 
-  this.get = function(index) {
-    return filters[index];
-  }
-
   this.getCells = function(frameId) {
     var cells = [];
     $.each(filters, function(filters_key, filter) {
-      $.each(filter.paths, function(paths_key, path) {
-        var cell_id = getCellAtFrame(path, frameId);
-        if( cell_id != -1)
-          cells.push([cell_id, filter.color]);
-      });
+    	if(filter.active) {
+	    	$.each(filter.paths, function(paths_key, path) {
+	        	var cell_id = getCellAtFrame(path, frameId);
+	        	if( cell_id != -1)
+	          		cells.push([cell_id, filter.color]);
+	      	});
+	    }
     });
     return cells;
   }
 
-  this.getAll = function() {
-    return filters;
+  this.deactivate = function(filter_index) {
+  	filters[filter_index].active = false;
+  	self.updateUi();
+  }
+
+  this.moveUp = function(filter_index) {
+  	if (filter_index > 0) {
+  		var tmp = filters[filter_index-1];
+  		filters[filter_index-1] = filters[filter_index];
+  		filters[filter_index] = tmp;
+  	}
+  	self.updateUi();
+  }
+
+  this.moveDown = function(filter_index) {
+  	if (filter_index < filters.length-1) {
+  		var tmp = filters[filter_index+1];
+  		filters[filter_index+1] = filters[filter_index];
+  		filters[filter_index] = tmp;
+  	}
+  	self.updateUi();
+  }
+
+  this.activate = function(filter_index) {
+  	filters[filter_index].active = true;
+  	self.updateUi();
   }
 
   this.changeFilterColor = function(color, index) {
     filters[index].color = color;
-    self.updateUi();
   } 
 
   this.remove = function(index) {
     filters.splice(index, 1);
-  }
-
-  this.removeAll = function() {
-    filters = [];
+    self.updateUi();
   }
 
   this.updateUi = function() {
@@ -52,10 +71,24 @@ function TrackingFilter() {
       $('#filterArea').show();
       $("#filter").html("");
       $.each(filters, function(key, filter) {
-        $('#filter').append("<div class=\"ui divider\"></div><div class=\"ui message\"><i class=\"circle first state icon\"></i><i class=\"remove secound state icon\"></i><input class=\"filterColor\"" +
+      	var boxColor = filter.active ? "blue" : "red";
+      	var circle = filter.active ? "circle blank" : "remove circle";
+      	var moveIcons = "";
+      	if((key == 0) && (key == filters.length-1)) {
+      		moveIcons = "";
+      	}
+      	else if(key == 0) {
+      		moveIcons = "<i data-index=\""+key+"\" class=\"down secound icon\"></i>";
+      	}
+      	else if(key == filters.length-1) {
+      		moveIcons = "<i data-index=\""+key+"\" class=\"up first icon\"></i>";
+      	}
+      	else {
+      		moveIcons = "<i data-index=\""+key+"\" class=\"up first icon\"></i><i data-index=\""+key+"\" class=\"down secound icon\"></i>";
+      	}
+        $('#filter').append("<div class=\"ui "+boxColor+" message\">"+moveIcons+"<i data-index=\""+key+"\" class=\""+circle+" third icon\"></i><i data-index=\""+key+"\" class=\"remove fourth icon\"></i><input class=\"filterColor\"" +
          "data-index=\""+key+"\" type=\"color\" value=\""+filter.color+"\"><div class=\"filter_info\">"+filter.option+" between "+filter.from+" and "+filter.to+"</div></div>");
       });
-      $('#filter').append("<script type=\"text/javascript\">function change(){$(\".filterColor\").change(function() {tracking.filter().changeFilterColor( $( this ).val(), $( this ).data(\"index\") ); tracking.redrawCells();})} change();</script>");
     }
     else {
       $('#filterArea').hide();
