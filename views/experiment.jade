@@ -28,13 +28,20 @@ block append scripts
         tracking.setSelectionColor($("#selectionColor").val());
       })
 
+      $(".filterColor").change(function() {
+        tracking.filter().changeFilterColor( $( this ).val(), $( this ).data("index"));
+      })
+
       $("#addFilter").click(function () {
-        tracking.addFilter({
+        tracking.filter().add({
           option : $("#filtertype").val(),
           from : $("#from").val(),
+          experiment : settings.experimentId,
           to : $("#to").val(),
           include : ($("#included").val() == "included") ? true : false
         });
+        tracking.redrawCells();
+        tracking.filter().updateUi();
       });
 
       $("#playButton").click(function() {
@@ -155,8 +162,8 @@ block content
         i.wrench.icon
         | Filter Settings
       .ui.selection.dropdown
-        input#filtertype(type="hidden",name="filtertype")
-        .default.text Type
+        input#filtertype(type="hidden",value="meanspeed",name="filtertype")
+        .text meanspeed
         i.dropdown.icon
         .menu
           .item.active(data-text="meanspeed") Meanspeed

@@ -31,3 +31,25 @@ a {text-decoration: none;}
 }
 
 .ui.inline.dropdown .text {color: #E75859;}
+
+.ui.message > .state.first.icon {
+	cursor: pointer;
+	position: absolute;
+	top: 1em;
+	right: 2em;
+}
+
+.ui.message > .state.secound.icon {
+	cursor: pointer;
+	position: absolute;
+	top: 1em;
+	right: 0.5em;
+}
+
+.filter_info {padding-top: 2em;}
+.filterColor {
+	cursor: pointer;
+	position: absolute;
+	top: 0em;
+	left: 0.5em;
+}

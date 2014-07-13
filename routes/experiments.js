@@ -5,13 +5,17 @@ mongoose.connect('mongodb://localhost/test');
 var db = mongoose.connection;
 var Experiment = require('../models/Experiment');
 var Path = require('../models/Path');
+var Property = require('../models/Property');
 
 exports.clearDatabase = function(req, res) {
     Experiment.remove({}, function(err) { 
         console.log('Experiments removed');
         Path.remove({}, function(err) { 
             console.log('Paths removed');
-            res.redirect('/');
+            Property.remove({}, function(err) { 
+                console.log('Properties removed');
+                res.redirect('/');
+            });
         });
     });
 }
@@ -60,28 +64,36 @@ exports.getPath = function(req, res) {
 
 exports.getMatchedPaths = function(req, res) {
     var query = {};
-    var filters = req.body.filters;
+    var filter = req.body.filter;
     var completeQuery = "";
 
-    for (var i = 0; i < filters.length; i++) {
-        if(filters[i].inculde == "true")
-            query[filters[i].option] = { $gt : filters[i].from, $lt : filters[i].to };  
-        else 
-            query[filters[i].option] = { $not : {$gt : filters[i].from, $lt : filters[i].to} };
-    };
-
+    if(filter.include == 'true')
+        query[filter.option] = { $gt : filter.from, $lt : filter.to };  
+    else 
+        query[filter.option] = { $not : {$gt : filter.from, $lt : filter.to} };
+    
     console.log(query);
 
-    Path.find({ $and : [query, { experiment_id : req.body.experiment }] }, function(err, paths) {
+    Property.find({ $and : [query, { experiment_id : req.body.filter.experiment }] }, function(err, properties) {
         if(err) {
             throw err;
         }
         else {
-            var filterdCells = [];
-            for(var i = 0; i < paths.length; i++) {
-                filterdCells.push(JSON.parse(paths[i].cells));
+            var path_ids = [];
+            for (var i = 0; i < properties.length; i++) {
+                path_ids.push(properties[i].path_id);
             }
-            res.send(filterdCells);
+
+            console.log(path_ids)
+
+            Path.find({'_id':{ $in: path_ids}}, function(err, paths) {
+                if(err) {
+                    throw err;
+                }
+                else {
+                    res.send(paths);
+                }
+            });
         }
     });
 }

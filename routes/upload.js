@@ -68,6 +68,7 @@ exports.uploadFile = function(req, res) {
 
                             var property = new Property({
                          		path_id : path._id,
+                                experiment_id : experiment._id,
                                 length : properties.paths[id].length, 
                                 edist : properties.paths[id].edist, 
                                 adist : properties.paths[id].adist, 

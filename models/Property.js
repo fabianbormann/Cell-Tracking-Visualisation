@@ -1,7 +1,8 @@
 mongoose = require('mongoose');
 
 var propertySchema = mongoose.Schema({
-    id: Number, 
+    path_id: String,
+    experiment_id: String, 
     length: Number, 
     edist: Number, 
     adist: Number, 

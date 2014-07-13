@@ -17,7 +17,6 @@ function Tracking (settings) {
 	var adjacencyList;
 	var cache = [];
 	var frameCache = [];
-	var filters = [];
 
 	var experiment = settings.experimentId;
 	var contrast = (settings.options.split(","))[0];
@@ -26,7 +25,7 @@ function Tracking (settings) {
 	var backgroundContext, foregroundContext;   
 
 	var images = [];
-
+  var trackingFilter;
 	var cells;
 	var selectedCells = [];
 	var selectedCellsColor = [];
@@ -40,9 +39,7 @@ function Tracking (settings) {
 		foregroundContext = foregroundCanvas.getContext('2d');
 
 		var image = new Image();
-
 		image.src = path+"images/"+self.getContrast()+"/"+"frame000"+imageExtension;
-
 		image.onload = function() {
 			backgroundCanvas.width  = image.width;
 			backgroundCanvas.height = image.height;
@@ -65,8 +62,9 @@ function Tracking (settings) {
 			self.unlockCanvas();
 			usingCurrentFrameData();
 		});
-		preload() 
+		preload(); 
 		play();
+    trackingFilter = new TrackingFilter();
 	}
 
 	this.start = function() {
@@ -113,8 +111,12 @@ function Tracking (settings) {
 	this.jumpTo = function(nextFrame) {
 		calculateSelectedCells(nextFrame);
 		self.setFrameId(nextFrame, true);
-		usingCurrentFrameData(); 
+		self.redrawCells();
 	}
+
+  this.redrawCells = function() {
+    usingCurrentFrameData(); 
+  }
 
 	this.setSelectionColor = function(color) {
 		if(color.substr(0,2) == "0x")
@@ -163,6 +165,10 @@ function Tracking (settings) {
 		}
 	}
 
+  this.filter = function() {
+    return trackingFilter;
+  }
+
 	this.unblock = function() {
 		if (!self.isRunning() && blocked) {
 			self.start();
@@ -199,11 +205,6 @@ function Tracking (settings) {
 	      		self.unblock();
 	      	});
 	    }
-  	}
-
-  	this.addFilter = function(filterSettings) {
-  		newFilter(filterSettings);
-  		updateFilterArea();
   	}
 
   	function calculateSelectedCells(nextFrame) {
@@ -539,11 +540,18 @@ function Tracking (settings) {
 
   function updateCellmasks() {
   	foregroundContext.clearRect(0,0,foregroundCanvas.width,foregroundCanvas.height);
-  	for(var i = 0; i <= selectedCells.length-1; i++) {
+  	for(var i = 0; i < selectedCells.length; i++) {
   		drawMask(selectedCells[i]);
   	}
-  }
 
+    var filteredCells = trackingFilter.getCells(self.getFrameId());
+    console.log(filteredCells);
+    if(filteredCells.length > 0) {
+      for(var j = 0; j < filteredCells.length; j++) {
+        drawMask(filteredCells[j][0], filteredCells[j][1]);
+      }
+    }
+  }
 
   function toggleCellSelection(cell_id) {
   	if(cellIsSelected(cell_id)) {
@@ -572,14 +580,20 @@ function Tracking (settings) {
   	foregroundContext.clearRect(boundingboxes[cell_id].x-(boundingboxes[cell_id].width/2)-1,boundingboxes[cell_id].y-(boundingboxes[cell_id].height/2)-1,boundingboxes[cell_id].width+1, boundingboxes[cell_id].height+1);
   }
 
-  function drawMask(cell_id) {
+  function drawMask(cell_id, opt_color) {
   	var cellmask = base64toBinary(cells[cell_id][0].mask, 'binary');
   	var boxPosX = boundingboxes[cell_id].x-(boundingboxes[cell_id].width/2);
   	var boxPosY = boundingboxes[cell_id].y-(boundingboxes[cell_id].height/2);
 
   	var pixelPosX = 0; 
   	var pixelPosY = 0;
-  	var mask_color = getSelectedCellColor(cell_id);
+    var mask_color;
+    
+    if(opt_color)
+      mask_color = opt_color;
+    else
+      mask_color = getSelectedCellColor(cell_id);
+
   	for (var i = 0; i < cellmask.length; i++) {
   		if(pixelPosX >= boundingboxes[cell_id].width){
   			pixelPosX = 0;
