@@ -72,8 +72,15 @@ function Tracking (settings) {
 		run = true;
 	}
 
-	this.stop = function() {
-		togglePlayButton();
+	this.stop = function(reset) {
+		if(reset) {
+      $("#playButton").removeClass( "active red" );
+      $("#playIcon").removeClass( "hidden" );
+      $("#pauseIcon").addClass( "hidden" );
+    }
+    else {
+      togglePlayButton();
+    }
 		resetFPS = true;
 		run = false;
 	}
@@ -176,36 +183,77 @@ function Tracking (settings) {
 		}
 	}
 
+  this.selectPath = function(event) {
+    var selection = locateNearestCell(event);
+    if(selection > -1) {
+      var predecessors = getAllPredecessors(cells[selection][0].path);
+
+      var pathCells = [];
+      $.each(predecessors, function(key, predecessor) {
+        var completeTree = getFutureCells(getCachedPath(predecessor), self.getFrameId());
+        pathCells = pathCells.concat(completeTree);
+      });
+
+      $.each(pathCells.unique(), function(key, cell) {
+        selectedCells.push(cell);
+        selectedCellsColor.push([cell, selectionColor]);
+        drawMask(cell);
+      })
+    }
+  }
+
+  function getAllPredecessors(path_id) {
+    predecessors = [path_id];
+    observed_predecessor = getPredecessors(path_id);
+    if(observed_predecessor.length > 0)
+      predecessors.push(observed_predecessor[0]);
+    
+    while(observed_predecessor.length > 0) {
+      observed_predecessor = getPredecessors(observed_predecessor[0]);
+      if(observed_predecessor.length > 0)
+        predecessors.push(observed_predecessor[0]);
+    }
+    return predecessors;
+  }
+
+  function locateNearestCell(event) {
+    var posX = parseInt ($("#foregroundCanvas").offset().left);
+    var posY = parseInt ($("#foregroundCanvas").offset().top);
+
+    var mouseX = parseInt (event.pageX) - posX;
+    var mouseY = parseInt (event.pageY) - posY;
+
+    mouseX = mouseX*(backgroundCanvas.width/$("#backgroundCanvas").width());
+    mouseY = mouseY*(backgroundCanvas.height/$("#backgroundCanvas").height());
+
+    var minDistance = [null];
+
+    // select the nearest cell 
+    for (var i = 1; i <= boundingboxes.length-1; i++) {
+      var distance =  Math.sqrt(Math.pow(boundingboxes[i].x - mouseX,2) + Math.pow(boundingboxes[i].y - mouseY,2));
+      if (distance < minDistance[0] || minDistance[0]==null)
+        minDistance = [distance,boundingboxes[i].id];
+    }
+
+    // threshold for distance 
+    if (minDistance[0]<100)
+      return minDistance[1];
+    else
+      return -1;
+  }
+
 	this.selectCell = function(event) {
-		var posX = parseInt ($("#foregroundCanvas").offset().left);
-		var posY = parseInt ($("#foregroundCanvas").offset().top);
-
-		var mouseX = parseInt (event.pageX) - posX;
-		var mouseY = parseInt (event.pageY) - posY;
-
-		mouseX = mouseX*(backgroundCanvas.width/$("#backgroundCanvas").width());
-		mouseY = mouseY*(backgroundCanvas.height/$("#backgroundCanvas").height());
-
-		var minDistance = [null];
-
-      	// select the nearest cell 
-      	for (var i = 1; i <= boundingboxes.length-1; i++) {
-      		var distance = 	Math.sqrt(Math.pow(boundingboxes[i].x - mouseX,2) + Math.pow(boundingboxes[i].y - mouseY,2));
-      		if (distance < minDistance[0] || minDistance[0]==null)
-      			minDistance = [distance,boundingboxes[i].id];
-      	}
-
-      	// threshold for distance 
-      	if (minDistance[0]<100) {
-	      	self.block();
-	      	toggleCellSelection(minDistance[1]);
-	      	self.lockCanvas();
-	      	bufferPaths(cells[minDistance[1]][0].path[0], function() {
-	      		self.unlockCanvas();
-	      		self.unblock();
-	      	});
-	    }
-  	}
+		var selection = locateNearestCell(event);
+    if(selection != -1) {
+    	self.block();
+    	toggleCellSelection(selection);
+    	self.lockCanvas();
+    	bufferPaths(cells[selection][0].path[0], function() {
+    		self.unlockCanvas();
+    		self.unblock();
+    	});
+    }
+  }
 
   	function calculateSelectedCells(nextFrame) {
 	  	if(nextFrame < self.getFrameId()) {
@@ -273,7 +321,7 @@ function Tracking (settings) {
   	}
 
   	var resetFPS = true;
-	  	function play() {
+	  function play() {
 	  	if(run && isNotComplete()) {
 	  		increaseFrameId();
 	  		speedKeeper(getFPS());
@@ -397,7 +445,7 @@ function Tracking (settings) {
 
   function isNotComplete() {
   	if(frameId >= maximalFrames-1) {
-  		self.setFrameId(0);
+  		self.jumpTo(0);
   		if(repeat) {
   			return true;
   		}

@@ -9,6 +9,10 @@ Array.prototype.containsObject = function(cellId, frameId) {
   return found
 }
 
+Array.prototype.difference = function(a) {
+    return this.filter(function(i) {return a.indexOf(i) < 0;});
+};
+
 Array.prototype.containsKey = function(key) {
   var result = -1;
   for(var index = 0; index < this.length; index++) {

@@ -1,7 +1,7 @@
 {
   "name": "Celltrack",
   "description": "Cell tracking application",
-  "version": "0.5.1",
+  "version": "0.9.7",
   "private": true,
   "dependencies": {
     "express": "3.x",

@@ -15,6 +15,7 @@ block append scripts
       tracking = new Tracking( settings );
 
       $('.ui.dropdown').dropdown();
+      $('.ui.checkbox').checkbox();
 
       $( window ).resize(function() {
         $("#canvasContainer").height( $("#backgroundCanvas").height() );
@@ -78,18 +79,17 @@ block append scripts
       });
 
       $("#backwardButton").click(function() {
-        tracking.setFrameId(0);
+        tracking.jumpTo(0);
       });
 
       $("#forwardButton").click(function() {
-        tracking.setFrameId(settings.maximalFrames-1);
+        tracking.stop(true);
+        tracking.jumpTo(settings.maximalFrames-1);
       });
 
       $("#stopButton").click(function() {
-        if(tracking.isRunning()) {
-          tracking.stop();
-          tracking.setFrameId(0);
-        }
+          tracking.stop(true);
+          tracking.jumpTo(0);
       });
 
       $("#repeatButton").click(function() {
@@ -102,7 +102,12 @@ block append scripts
       });
 
       $("#foregroundCanvas").click(function(event) {
-        tracking.selectCell(event);
+        if( document.getElementById("single_cell").checked ) {
+          tracking.selectCell(event);
+        }
+        else {
+          tracking.selectPath(event);
+        }
       });
 
       $(".ui.progress").click(function(event) {
@@ -177,12 +182,12 @@ block content
         .grouped.inline.fields
           .ui.field
             .ui.radio.checkbox
-              input#single_cell(type="radio",name="selection_type",checked="")
-              label(for="single_cell") Cell selection
+              input#single_cell(type="radio",name="selection_type",checked="checked")
+              label Cell selection
           .ui.field
             .ui.radio.checkbox
               input#tree(type="radio",name="selection_type")
-              label(for="tree") Tree selection
+              label Tree selection
     .ui.secondary.segment
       h2.ui.header
         i.wrench.icon
