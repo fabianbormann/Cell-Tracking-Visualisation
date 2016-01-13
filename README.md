@@ -1,20 +1,25 @@
-Celltrack-Node
-==============
+## Getting Started
 
-### Celltracking web application written in Node.js ###
+### Prerequisites
 
-Created using 
+* Download and install the latest version of [Node.js](https://nodejs.org/en/).
+* Get [MongoDB](https://www.mongodb.org/) 
 
-* [Express for Node.js](http://expressjs.com/)
-* [Swig](http://paularmstrong.github.io/swig/)
-* [Semantic UI](http://semantic-ui.com/)
+### Installation 
 
-To install and use this project, clone it, make sure you have Node.js installed and do the following:
+* Clone this repository
 
 	$ git clone https://github.com/fabianbormann/Celltrack-Node.git
 	$ cd Celltrack-Node
+	
+* Get all packages
+
 	$ npm install
+
+### Start 
+
+* Now you can start the server. Make sure you have MongoDB running!
+
 	$ node server.js
 
-Make sure you have [MongoDB](http://www.mongodb.org/) installed and running!
-Then go to [localhost:3000/](localhost:3000/)
+* Goto [localhost:3000/](localhost:3000/) to visit the running cell tracking visualisation!
