@@ -22,4 +22,4 @@
 
 		$ node server.js
 
-* Goto [localhost:3000/](localhost:3000/) to visit the running cell tracking visualisation!
+* Goto [localhost:3000](http://localhost:3000/) to visit the running cell tracking visualisation!
