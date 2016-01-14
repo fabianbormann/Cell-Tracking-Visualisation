@@ -1,4 +1,4 @@
-![](https://cloud.githubusercontent.com/assets/1525818/12334647/5819c8e6-bafb-11e5-99b8-63ebe3dc693a.png = 250x)
+![](https://cloud.githubusercontent.com/assets/1525818/12334647/5819c8e6-bafb-11e5-99b8-63ebe3dc693a.png)
 
 ## Getting Started
 
