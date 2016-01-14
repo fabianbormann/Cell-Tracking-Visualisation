@@ -1,5 +1,7 @@
 ## Getting Started
 
+![alt text](https://cloud.githubusercontent.com/assets/1525818/12334647/5819c8e6-bafb-11e5-99b8-63ebe3dc693a.png "Cell Tracking Visualisation experiment page")
+
 ### Prerequisites
 
 * Download and install the latest version of [Node.js](https://nodejs.org/en/).
