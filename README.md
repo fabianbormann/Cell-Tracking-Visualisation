@@ -1,6 +1,6 @@
-## Getting Started
+![alt text](https://cloud.githubusercontent.com/assets/1525818/12334647/5819c8e6-bafb-11e5-99b8-63ebe3dc693a.png =250x "Cell Tracking Visualisation experiment page")
 
-![alt text](https://cloud.githubusercontent.com/assets/1525818/12334647/5819c8e6-bafb-11e5-99b8-63ebe3dc693a.png "Cell Tracking Visualisation experiment page")
+## Getting Started
 
 ### Prerequisites
 
