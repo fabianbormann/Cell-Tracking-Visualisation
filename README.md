@@ -1,6 +1,6 @@
 # Cell Tracking Visualisation
 
-<img src="https://cloud.githubusercontent.com/assets/1525818/12334647/5819c8e6-bafb-11e5-99b8-63ebe3dc693a.png" width="280">
+<img src="https://cloud.githubusercontent.com/assets/1525818/12334647/5819c8e6-bafb-11e5-99b8-63ebe3dc693a.png" width="480">
 
 ## Getting Started
 
