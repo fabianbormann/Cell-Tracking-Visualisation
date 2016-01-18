@@ -116,7 +116,7 @@ function TrackingFilter() {
       var result = [];
       jQuery.ajax({
         type: 'POST',
-        url: '/path/filter/',
+        url: '/experiments/path/filter/',
         data: {
           filter : settings
         },

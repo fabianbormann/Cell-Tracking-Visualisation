@@ -5,7 +5,7 @@ head
     if title
         title= title
     else
-        title Celltrack
+        title Cell tracking visualisation framework
     block styles
         link(href='http://fonts.googleapis.com/css?family=Open+Sans', rel='stylesheet', type='text/css')
         link(rel='stylesheet', type='text/css', href='/css/semantic.min.css')
@@ -18,17 +18,17 @@ body
     .ui.fixed.transparent.inverted.main.menu
         .container
             a.item(href='/')
-            | Celltrack
+            | Cell tracking visualisation
             a.item(href='/')
                 i.home.icon
                 | Home
-            a.item(href='/upload/')
+            a.item(href='/upload')
                 i.attachment.icon
                 | Upload
-            a.item(href='/experiments/')
+            a.item(href='/experiments')
                 i.lab.icon
                 | Experiments
-            a.right.floated.item(href='/about/')
+            a.right.floated.item(href='/')
                 i.question.icon
                 | About
     .content.ui.page.grid

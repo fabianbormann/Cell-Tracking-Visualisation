@@ -1,37 +1,37 @@
-var fs = require('fs-extra'),
-    mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/test');
-var db = mongoose.connection;
+var express = require('express');
+var router = express.Router();
+var fs = require('fs-extra');
+var mongoose = require('mongoose');
+
 var Experiment = require('../models/Experiment');
 var Path = require('../models/Path');
 var Property = require('../models/Property');
 
-exports.clearDatabase = function(req, res) {
+mongoose.connect('mongodb://localhost/cell_tracking_framework');
+
+router.get('/clear/database', function(req, res) {
     Experiment.remove({}, function(err) { 
-        console.log('Experiments removed');
         Path.remove({}, function(err) { 
-            console.log('Paths removed');
             Property.remove({}, function(err) { 
-                console.log('Properties removed');
+                console.log('Database cleared.');
                 res.redirect('/');
             });
         });
     });
-}
+});
 
-exports.showWorkspace = function(req, res) {
+router.get('/', function(req, res) {
     Experiment.find(function(err, experiments) {
         res.render('workspace', { 
             experiments : experiments 
         });
     });
-};
+});
 
-exports.findById = function(req, res) {
+router.get('/:id', function(req, res) {
     Experiment.findOne({'_id': req.params.id}, function(err, experiment) {
         if (experiment) {
-
             files = fs.readdir("./public/data/"+experiment.name+"/images", function(err, files){
                 if(err){
                     throw err;
@@ -54,15 +54,15 @@ exports.findById = function(req, res) {
             res.redirect('/upload/');
         }
     });
-};
+});
 
-exports.getPath = function(req, res) {
+router.get('/path/:path/:experiment', function(req, res) {
     Path.findOne( { id : parseInt(req.params.path), experimentId : req.params.experiment }, function(err, path) {
         res.send(path);
     })
-}
+});
 
-exports.getMatchedPaths = function(req, res) {
+router.post('/path/filter', function(req, res) {
     var query = {};
     var filter = req.body.filter;
     var completeQuery = "";
@@ -96,4 +96,6 @@ exports.getMatchedPaths = function(req, res) {
             });
         }
     });
-}
+});
+
+module.exports = router;

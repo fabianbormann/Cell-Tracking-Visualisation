@@ -557,7 +557,7 @@ function Tracking (settings) {
   	else {
   		var result = null;
   		jQuery.ajax({
-  			url: "/path/"+id+"/"+experiment,
+  			url: "/experiments/path/"+id+"/"+experiment,
   			success: function(data) {
   				result = data;
   				cache.push([id, JSON.stringify(data)])
@@ -574,7 +574,7 @@ function Tracking (settings) {
   		executeCallback(callback, JSON.parse(cache[index][1]));
   	}
   	else {
-  		$.when($.get("/path/"+id+"/"+experiment))
+  		$.when($.get("/experiments/path/"+id+"/"+experiment))
   		.done(function( data ) {
   			cache.push([id, JSON.stringify(data)])
   			executeCallback(callback, data);
