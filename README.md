@@ -24,6 +24,6 @@
 
 * Now you can start the server. Make sure you have MongoDB running!
 
-		$ node server.js
+		$ node app.js
 
 * Goto [localhost:3000](http://localhost:3000/) to visit the running cell tracking visualisation!
