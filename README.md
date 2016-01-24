@@ -27,3 +27,8 @@
 		$ node app.js
 
 * Goto [localhost:3000](http://localhost:3000/) to visit the running cell tracking visualisation!
+
+### Development
+
+If you want to become a part of this visualisation framework you can just fork it and implement a new feature!
+Read the [wiki pages](https://github.com/fabianbormann/Cell-Tracking-Visualisation/wiki) for more information. When you are finished with your implementation it would be great to see your pull request!
