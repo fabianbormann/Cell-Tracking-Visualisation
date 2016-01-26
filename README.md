@@ -13,7 +13,7 @@
 
 * Clone this repository
 
-		$ git clone https://github.com/fabianbormann/Celltrack-Node.git
+		$ git clone https://github.com/fabianbormann/Cell-Tracking-Visualisation.git
 		$ cd Celltrack-Node
 	
 * Get all packages
